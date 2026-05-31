@@ -1,3 +1,179 @@
 @use "./variables.scss" as *;
 
-// put your custom CSS here!
+// Self-hosted Switzer (woff2 files live in quartz/static/fonts/).
+// @font-face is allowed anywhere in the CSS bundle, unlike @import url().
+@font-face {
+  font-family: "Switzer";
+  src: url("/static/fonts/switzer-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Switzer";
+  src: url("/static/fonts/switzer-italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+// ============================================================================
+// Site-wide typography: Switzer, 14px / 140%, never bold.
+// ============================================================================
+
+body {
+  font-family: "Switzer", sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 400;
+}
+
+p,
+li,
+tbody,
+a,
+strong,
+b,
+em,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Switzer", sans-serif;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+p,
+li,
+tbody {
+  font-size: 14px;
+}
+
+// ============================================================================
+// Hyperlinks: underlined, inverted hover.
+// ============================================================================
+
+a {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  text-decoration-thickness: 1px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--secondary);
+    color: var(--light);
+  }
+}
+
+a.internal {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+
+  &:hover {
+    background-color: var(--secondary);
+    color: var(--light);
+  }
+}
+
+a.external:hover .external-icon > path {
+  fill: var(--light);
+}
+
+// ============================================================================
+// Homepage: 9-column grid, article in cols 3-5.
+// ============================================================================
+
+body[data-slug="index"] {
+  .page {
+    max-width: 100%;
+  }
+
+  .page > #quartz-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    grid-template-areas: "grid-center";
+    column-gap: 0;
+    row-gap: 0;
+    padding: 0;
+
+    @media all and not ($desktop) {
+      padding: 0;
+    }
+
+    & > .sidebar {
+      display: none;
+    }
+  }
+
+  .center {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    column-gap: 20px;
+    padding: 0 40px;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+
+    @media all and ($mobile) {
+      grid-template-columns: 1fr;
+      column-gap: 0;
+      padding: 0 1rem;
+    }
+  }
+
+  .center > * {
+    grid-column: 3 / span 3;
+    min-width: 0;
+
+    @media all and ($mobile) {
+      grid-column: 1;
+    }
+  }
+
+  .page-header {
+    display: none;
+  }
+
+  // Hide DefaultFrame's auto-injected <hr/> that sits between the article
+  // and the (hidden) page-footer slot.
+  .center > hr {
+    display: none;
+  }
+
+  .center > article {
+    margin: 6rem 0 1rem 0;
+    max-width: 100%;
+  }
+
+  // Folder nav: any <ul> inside the article on the homepage becomes a
+  // horizontal row with 40px gaps. Add a new folder by adding one bullet
+  // to index.md — no spacing tags needed.
+  article ul {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 40px;
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0 0;
+
+    & > li {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+      &::marker {
+        content: "";
+      }
+    }
+  }
+
+  footer,
+  .page-footer {
+    display: none;
+  }
+}
