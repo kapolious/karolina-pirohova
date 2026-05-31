@@ -7,6 +7,10 @@ in case you don't see me standing in a ray of sunshine, please feel free to reac
 
 i am a twentysomething woman with a hyperfixation on fish, thoughtfully designed spaces, and the color blue.
 
+![](star.png)
+
+(i am blue because what else is a person if not a hyperlink.)
+
 - [thoughts](thoughts/)
 - [portfolio](portfolio/)
 - [kisk](kisk/)
