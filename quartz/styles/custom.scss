@@ -52,6 +52,13 @@ tbody {
   font-size: 16px;
 }
 
+// Softer text-selection tint (base.scss mixes 60% of --tertiary which is too loud
+// when --tertiary is pure blue).
+::selection {
+  background-color: rgba(0, 0, 238, 0.10);
+  color: var(--secondary);
+}
+
 // ============================================================================
 // Hyperlinks: underlined, inverted hover.
 // ============================================================================
@@ -158,8 +165,9 @@ body[data-slug="index"] {
     flex-wrap: wrap;
     gap: 40px;
     list-style: none;
-    padding: 0;
-    margin: 1rem 0 0 0;
+    margin: 20px 0 0 0;
+    padding: 20px 0 0 0;
+    border-top: 1px solid rgba(0, 0, 238, 0.1);
 
     & > li {
       list-style: none;
