@@ -3,7 +3,7 @@ configuration:
   pageTitle: Quartz 5
   pageTitleSuffix: ""
   enableSPA: true
-  enablePopovers: true
+  enablePopovers: false
   analytics:
     provider: plausible
   locale: en-US
