@@ -2,12 +2,14 @@ import { PageFrame } from "./types"
 import { DefaultFrame } from "./DefaultFrame"
 import { FullWidthFrame } from "./FullWidthFrame"
 import { MinimalFrame } from "./MinimalFrame"
+import { BlockFrame } from "./BlockFrame"
 import { frameRegistry } from "./registry"
 
 export type { PageFrame, PageFrameProps } from "./types"
 export { DefaultFrame } from "./DefaultFrame"
 export { FullWidthFrame } from "./FullWidthFrame"
 export { MinimalFrame } from "./MinimalFrame"
+export { BlockFrame } from "./BlockFrame"
 export { frameRegistry } from "./registry"
 export type { RegisteredFrame } from "./registry"
 
@@ -17,11 +19,13 @@ export type { RegisteredFrame } from "./registry"
  * `layout.byPageType.<name>.template`.
  *
  * The "default" frame reproduces the original three-column Quartz layout.
+ * The "blocks" frame is the custom three-block A/B/C layout this site uses.
  */
 const builtinFrames: Record<string, PageFrame> = {
   default: DefaultFrame,
   "full-width": FullWidthFrame,
   minimal: MinimalFrame,
+  blocks: BlockFrame,
 }
 
 /**

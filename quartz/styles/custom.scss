@@ -1,7 +1,8 @@
 @use "./variables.scss" as *;
 
-// Self-hosted Switzer (woff2 files live in quartz/static/fonts/).
-// @font-face is allowed anywhere in the CSS bundle, unlike @import url().
+// ============================================================================
+// SELF-HOSTED FONT
+// ============================================================================
 @font-face {
   font-family: "Switzer";
   src: url("/static/fonts/switzer-regular.woff2") format("woff2");
@@ -18,8 +19,13 @@
 }
 
 // ============================================================================
-// Site-wide typography: Switzer, 16 / 140%, never bold.
+// TYPOGRAPHY — Switzer, 16/140%, never bold (titles override locally).
 // ============================================================================
+html {
+  // Always reserve the scrollbar gutter so the viewport width is identical on
+  // every page — keeps the grid columns (and dividers) glued to fixed X.
+  overflow-y: scroll;
+}
 
 body {
   font-family: "Switzer", sans-serif;
@@ -28,41 +34,24 @@ body {
   font-weight: 400;
 }
 
-p,
-li,
-tbody,
-a,
-strong,
-b,
-em,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+p, li, tbody, a, strong, b, em, h1, h2, h3, h4, h5, h6 {
   font-family: "Switzer", sans-serif;
   font-weight: 400;
   line-height: 1.4;
 }
 
-p,
-li,
-tbody {
+p, li, tbody {
   font-size: 16px;
 }
 
-// Softer text-selection tint (base.scss mixes 60% of --tertiary which is too loud
-// when --tertiary is pure blue).
 ::selection {
   background-color: rgba(0, 0, 238, 0.10);
   color: var(--secondary);
 }
 
 // ============================================================================
-// Hyperlinks: underlined, inverted hover.
+// HYPERLINKS — underlined, blue, invert on hover.
 // ============================================================================
-
 a {
   text-decoration: underline;
   text-underline-offset: 0.15em;
@@ -79,6 +68,8 @@ a.internal {
   background-color: transparent;
   padding: 0;
   border-radius: 0;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 
   &:hover {
     background-color: var(--secondary);
@@ -91,79 +82,203 @@ a.external:hover .external-icon > path {
 }
 
 // ============================================================================
-// Homepage: 9-column grid, article in cols 3-5.
+// LAYOUT — the three-block frame.
+//
+// BlockFrame.tsx renders three siblings (.block-a, .block-b, .block-c) inside
+// the existing #quartz-body grid container. Here we set up the 9-column grid
+// once, fix each block to its column range, and forget about it.
+//
+//   ┌─────────┬──────────────────┬───────────┐
+//   │ Block A │     Block B      │  Block C  │
+//   │ 1 — 2   │     3 — 6        │  7 — 9    │
+//   └─────────┴──────────────────┴───────────┘
+//
+// 40px margin all around; 20px gaps between columns.
 // ============================================================================
 
-body[data-slug="index"] {
-  .page {
-    max-width: 100%;
-  }
+// Force the page wrapper to fill the viewport (defeat base.scss's 1500px
+// max-width via the higher-specificity id selector on #quartz-root).
+#quartz-root.page {
+  max-width: 100%;
+  width: 100%;
+  margin: 0;
+}
 
-  .page > #quartz-body {
+#quartz-root > #quartz-body {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  column-gap: 20px;
+  padding: 40px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+  box-sizing: border-box;
+  position: relative;
+
+  // Column-width helper used by the divider positioning calc().
+  --col-w: calc((100% - 240px) / 9);
+
+  @media all and ($mobile) {
     grid-template-columns: 1fr;
-    grid-template-rows: auto;
-    grid-template-areas: "grid-center";
     column-gap: 0;
-    row-gap: 0;
+    padding: 24px 16px;
+    min-height: auto;
+  }
+}
+
+// Hide Quartz's sidebar slots completely — we use blocks instead.
+#quartz-root > #quartz-body > .sidebar,
+#quartz-root > #quartz-body > footer {
+  display: none;
+}
+
+// === Block placement — fixed column ranges, regardless of page kind ========
+
+.block-a { grid-column: 1 / span 2; }
+.block-b { grid-column: 3 / span 4; }
+.block-c { grid-column: 7 / span 3; }
+
+.block-a, .block-b, .block-c {
+  min-width: 0;
+
+  @media all and ($mobile) {
+    grid-column: 1;
+  }
+}
+
+// === Vertical dividers in the gaps between blocks ===========================
+//
+// Drawn as absolutely-positioned pseudo-elements on #quartz-body. Each shows
+// only when both neighbouring blocks have content — toggled per page kind
+// via the body[data-slug] selectors below.
+
+#quartz-root > #quartz-body::before,
+#quartz-root > #quartz-body::after {
+  content: "";
+  position: absolute;
+  top: 40px;
+  bottom: 40px;
+  width: 1px;
+  background-color: rgba(0, 0, 238, 0.1);
+  pointer-events: none;
+
+  @media all and ($mobile) {
+    display: none;
+  }
+}
+
+// Between Block A and Block B (centered in the gap after col 2).
+#quartz-root > #quartz-body::before {
+  left: calc(40px + 2 * var(--col-w) + 30px);
+}
+
+// Between Block B and Block C (centered in the gap after col 6).
+#quartz-root > #quartz-body::after {
+  left: calc(40px + 6 * var(--col-w) + 110px);
+}
+
+// Homepage: only Block B has content → hide both dividers.
+body[data-slug="index"] {
+  #quartz-root > #quartz-body::before,
+  #quartz-root > #quartz-body::after {
+    display: none;
+  }
+}
+
+// Folder + note pages: Block C is empty for now → hide the B/C divider only.
+// When you add content to Block C, remove this block.
+body:not([data-slug="index"]) {
+  #quartz-root > #quartz-body::after {
+    display: none;
+  }
+}
+
+// ============================================================================
+// BLOCK-INTERNAL STYLING
+// Each template uses semantic class names — style them once, reuse anywhere.
+// ============================================================================
+
+// Block A breadcrumbs (folder + note pages).
+.block-breadcrumbs {
+  font-size: 0.95rem;
+  margin: 0 0 1rem 0;
+
+  .breadcrumb-sep {
+    margin: 0 0.15em;
+  }
+}
+
+// Section / note title (24px bold). Appears in Block A on folder pages, in
+// Block B on detail pages — same class either way.
+.block-title {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 1rem 0;
+}
+
+// Folder intro paragraphs (the markdown body of <folder>/index.md).
+.block-intro {
+  & > :first-child { margin-top: 0; }
+  & > :last-child { margin-bottom: 0; }
+}
+
+// Note body.
+.block-body {
+  & > :first-child { margin-top: 0; }
+}
+
+// === Folder listing rows: `title ............. [tag] [tag]` =================
+.block-listing {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  & > li {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    margin: 0 0 0.5rem 0;
     padding: 0;
+    list-style: none;
 
-    @media all and not ($desktop) {
-      padding: 0;
-    }
-
-    & > .sidebar {
-      display: none;
-    }
+    &::marker { content: ""; }
   }
+}
 
-  .center {
-    display: grid;
-    grid-template-columns: repeat(9, 1fr);
-    column-gap: 20px;
-    padding: 0 40px;
-    max-width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
+.block-listing-title {
+  flex: 1 1 auto;
+  min-width: 0;
+}
 
-    @media all and ($mobile) {
-      grid-template-columns: 1fr;
-      column-gap: 0;
-      padding: 0 1rem;
-    }
-  }
+.block-listing-tags {
+  flex-shrink: 0;
+  display: inline-flex;
+  gap: 0.5rem;
+}
 
-  .center > * {
-    grid-column: 3 / span 3;
-    min-width: 0;
+.block-listing-tag {
+  text-decoration: underline;
+}
 
-    @media all and ($mobile) {
-      grid-column: 1;
-    }
-  }
+.block-empty-state {
+  margin: 0;
+  opacity: 0.6;
+}
 
-  .page-header {
-    display: none;
-  }
+// === Homepage article + folder nav ==========================================
+// The trailing <ul> in content/index.md becomes the horizontal folder nav.
+.block-home {
+  & > :first-child { margin-top: 0; }
 
-  // Hide DefaultFrame's auto-injected <hr/> that sits between the article
-  // and the (hidden) page-footer slot.
-  .center > hr {
-    display: none;
-  }
-
-  .center > article {
-    margin: 6rem 0 1rem 0;
-    max-width: 100%;
-  }
-
-  // Folder nav: any <ul> inside the article on the homepage becomes a
-  // horizontal row with 40px gaps. Add a new folder by adding one bullet
-  // to index.md — no spacing tags needed.
-  article ul {
+  ul:last-child {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 40px;
+    gap: 20px;
     list-style: none;
     margin: 20px 0 0 0;
     padding: 20px 0 0 0;
@@ -174,14 +289,7 @@ body[data-slug="index"] {
       margin: 0;
       padding: 0;
 
-      &::marker {
-        content: "";
-      }
+      &::marker { content: ""; }
     }
-  }
-
-  footer,
-  .page-footer {
-    display: none;
   }
 }

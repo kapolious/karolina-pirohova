@@ -207,6 +207,11 @@ plugins:
       group: toolbar
   - source: github:quartz-community/breadcrumbs
     enabled: true
+    options:
+      spacerSymbol: "—"
+      rootName: "home"
+      resolveFrontmatterTitle: true
+      showCurrentPage: true
     layout:
       position: beforeBody
       priority: 5
@@ -280,16 +285,40 @@ layout:
         beforeBody: []
         left: []
         right: []
-    content: {}
+    content:
+      template: blocks
+      exclude:
+        - content-meta
+        - note-properties
+        - article-title
+      positions:
+        beforeBody: []
+        afterBody: []
+        left: []
+        right: []
     folder:
+      template: blocks
       exclude:
         - reader-mode
+        - content-meta
+        - note-properties
+        - article-title
       positions:
+        beforeBody: []
+        afterBody: []
+        left: []
         right: []
     tag:
+      template: blocks
       exclude:
         - reader-mode
+        - content-meta
+        - note-properties
+        - article-title
       positions:
+        beforeBody: []
+        afterBody: []
+        left: []
         right: []
     canvas: {}
     bases: {}
