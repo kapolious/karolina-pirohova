@@ -70,12 +70,34 @@ const PIXEL_LINK_SCRIPT = `
       if (link.textContent && link.textContent.trim().length > 0) continue;
       link.dataset.pixelLink = 'on';
 
+      // Start with cursor: default; mousemove will flip to pointer over
+      // opaque pixels. Without this, the very first frame after mouseenter
+      // would briefly show the browser's default pointer.
+      link.style.cursor = 'default';
+
       (function (link, img) {
+        var rafId = null;
+
         link.addEventListener('click', function (e) {
           if (!isPixelOpaque(img, e.clientX, e.clientY)) {
             e.preventDefault();
             e.stopPropagation();
           }
+        });
+
+        // Throttle via rAF — mousemove fires every frame at minimum, no need
+        // to read pixels more often than the screen refreshes.
+        link.addEventListener('mousemove', function (e) {
+          var x = e.clientX, y = e.clientY;
+          if (rafId) cancelAnimationFrame(rafId);
+          rafId = requestAnimationFrame(function () {
+            link.style.cursor = isPixelOpaque(img, x, y) ? 'pointer' : 'default';
+          });
+        });
+
+        link.addEventListener('mouseleave', function () {
+          if (rafId) cancelAnimationFrame(rafId);
+          link.style.cursor = 'default';
         });
       })(link, img);
     }

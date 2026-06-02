@@ -9,7 +9,7 @@ i am a twentysomething woman with a hyperfixation on fish, thoughtfully designed
 
 in case you don't see me standing in a ray of sunshine, please feel free to reach me via [email](mailto:karolina.pirohova@gmail.com) or [instagram](https://www.instagram.com/kapolious/).
 
-[![](/static/me.webp)]([https://www.youtube.com/watch?v=GxPNprgqR48&list=RDGxPNprgqR48&start_radio=1](https://www.youtube.com/watch?v=douMEsv7kpI&list=PLsS9Uq2vo2EXNWXB5c95ZMSXuneCRNxKC))
+[![](/static/me.webp)](https://www.youtube.com/watch?v=douMEsv7kpI&list=PLsS9Uq2vo2EXNWXB5c95ZMSXuneCRNxKC)
 
 (i am blue because what else is a person if not a hyperlink.)
 

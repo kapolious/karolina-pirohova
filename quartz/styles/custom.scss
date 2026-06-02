@@ -86,21 +86,49 @@ a.external:hover .external-icon > path {
   fill: var(--light);
 }
 
-// Links that wrap an image (e.g. `[![](me.png)](url)` in markdown) get no
-// pill background and no external-link icon — the image is the affordance.
+// Links that wrap an image (e.g. `[![](me.png)](url)` in markdown) get NO
+// visual treatment — only the cursor changes to a pointer on hover. The
+// image is the affordance; the link is an easter egg.
+//
+// We strip every state's background, underline, focus ring, and the
+// external-link icon. Image is set to display: block so the link's
+// bounding box hugs it (no inline descender gap).
+// Include the `.internal` and `.external` variants explicitly so this rule's
+// specificity always beats `a.internal:hover { background-color: ... }` etc.
+// Without these, Quartz mis-classifying a URL would let the blue highlight
+// sneak back in.
 a:has(> img),
-a:has(> p > img) {
+a:has(> p > img),
+a.internal:has(> img),
+a.internal:has(> p > img),
+a.external:has(> img),
+a.external:has(> p > img) {
+  display: inline-block;
   background-color: transparent;
   padding: 0;
   border-radius: 0;
+  text-decoration: none;
+  outline: none;
+  transition: none;
 
-  &:hover {
+  &:hover,
+  &:focus,
+  &:focus-visible,
+  &:active,
+  &:visited {
     background-color: transparent;
     color: inherit;
+    text-decoration: none;
+    outline: none;
   }
 
   .external-icon {
     display: none;
+  }
+
+  img {
+    display: block;
+    transition: none;
   }
 }
 
