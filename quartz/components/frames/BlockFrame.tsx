@@ -4,7 +4,7 @@ import BlockA_NoteInfo from "../blocks/BlockA_NoteInfo"
 import BlockB_Listing from "../blocks/BlockB_Listing"
 import BlockB_Note from "../blocks/BlockB_Note"
 import BlockB_Home from "../blocks/BlockB_Home"
-import BlockC_Empty from "../blocks/BlockC_Empty"
+import BlockC_Footnotes from "../blocks/BlockC_Footnotes"
 import { BlockTemplate } from "../blocks/types"
 
 /**
@@ -70,19 +70,19 @@ function templatesFor(kind: PageKind): BlockSet {
       return {
         BlockA: null,
         BlockB: BlockB_Home,
-        BlockC: null,
+        BlockC: BlockC_Footnotes,
       }
     case "folder":
       return {
         BlockA: BlockA_FolderInfo,
         BlockB: BlockB_Listing,
-        BlockC: BlockC_Empty,
+        BlockC: BlockC_Footnotes,
       }
     case "note":
       return {
         BlockA: BlockA_NoteInfo,
         BlockB: BlockB_Note,
-        BlockC: BlockC_Empty,
+        BlockC: BlockC_Footnotes,
       }
   }
 }

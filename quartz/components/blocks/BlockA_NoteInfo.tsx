@@ -21,7 +21,7 @@ const BlockA_NoteInfo: BlockTemplate = (props) => {
           {seg.href ? (
             <a href={seg.href} class="internal">{seg.label}</a>
           ) : (
-            <span>{seg.label}</span>
+            <span class="breadcrumb-current">{seg.label}</span>
           )}
         </>
       ))}

@@ -33,9 +33,11 @@ const BlockB_Listing: BlockTemplate = (props) => {
         const tags = page.frontmatter?.tags ?? []
         return (
           <li>
-            <a href={`/${page.slug}`} class="internal block-listing-title">
-              {title}
-            </a>
+            <span class="block-listing-title-cell">
+              <a href={`/${page.slug}`} class="internal">
+                {title}
+              </a>
+            </span>
             {tags.length > 0 && (
               <span class="block-listing-tags">
                 {tags.map((tag) => (

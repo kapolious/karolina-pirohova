@@ -1,5 +1,10 @@
 @use "./variables.scss" as *;
 
+// Site colour tokens beyond what's in quartz.config.yaml.
+:root {
+  --orange: #e85d00;
+}
+
 // ============================================================================
 // SELF-HOSTED FONT
 // ============================================================================
@@ -19,7 +24,7 @@
 }
 
 // ============================================================================
-// TYPOGRAPHY — Switzer, 16/140%, never bold (titles override locally).
+// TYPOGRAPHY — Switzer, 14/140%, never bold (titles override locally).
 // ============================================================================
 html {
   // Always reserve the scrollbar gutter so the viewport width is identical on
@@ -29,7 +34,7 @@ html {
 
 body {
   font-family: "Switzer", sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.4;
   font-weight: 400;
 }
@@ -41,7 +46,7 @@ p, li, tbody, a, strong, b, em, h1, h2, h3, h4, h5, h6 {
 }
 
 p, li, tbody {
-  font-size: 16px;
+  font-size: 14px;
 }
 
 ::selection {
@@ -79,6 +84,24 @@ a.internal {
 
 a.external:hover .external-icon > path {
   fill: var(--light);
+}
+
+// Links that wrap an image (e.g. `[![](me.png)](url)` in markdown) get no
+// pill background and no external-link icon — the image is the affordance.
+a:has(> img),
+a:has(> p > img) {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+
+  &:hover {
+    background-color: transparent;
+    color: inherit;
+  }
+
+  .external-icon {
+    display: none;
+  }
 }
 
 // ============================================================================
@@ -147,52 +170,9 @@ a.external:hover .external-icon > path {
   }
 }
 
-// === Vertical dividers in the gaps between blocks ===========================
-//
-// Drawn as absolutely-positioned pseudo-elements on #quartz-body. Each shows
-// only when both neighbouring blocks have content — toggled per page kind
-// via the body[data-slug] selectors below.
-
-#quartz-root > #quartz-body::before,
-#quartz-root > #quartz-body::after {
-  content: "";
-  position: absolute;
-  top: 40px;
-  bottom: 40px;
-  width: 1px;
-  background-color: rgba(0, 0, 238, 0.1);
-  pointer-events: none;
-
-  @media all and ($mobile) {
-    display: none;
-  }
-}
-
-// Between Block A and Block B (centered in the gap after col 2).
-#quartz-root > #quartz-body::before {
-  left: calc(40px + 2 * var(--col-w) + 30px);
-}
-
-// Between Block B and Block C (centered in the gap after col 6).
-#quartz-root > #quartz-body::after {
-  left: calc(40px + 6 * var(--col-w) + 110px);
-}
-
-// Homepage: only Block B has content → hide both dividers.
-body[data-slug="index"] {
-  #quartz-root > #quartz-body::before,
-  #quartz-root > #quartz-body::after {
-    display: none;
-  }
-}
-
-// Folder + note pages: Block C is empty for now → hide the B/C divider only.
-// When you add content to Block C, remove this block.
-body:not([data-slug="index"]) {
-  #quartz-root > #quartz-body::after {
-    display: none;
-  }
-}
+// (Vertical dividers between blocks were removed — relying on column gaps
+// and whitespace to separate them instead. If you want them back, restore
+// the `#quartz-body::before/::after` rules from git history.)
 
 // ============================================================================
 // BLOCK-INTERNAL STYLING
@@ -206,6 +186,13 @@ body:not([data-slug="index"]) {
 
   .breadcrumb-sep {
     margin: 0 0.15em;
+  }
+
+  // Current page in the trail — plain text, never underlined, no hover.
+  .breadcrumb-current {
+    text-decoration: none;
+    color: inherit;
+    pointer-events: none;
   }
 }
 
@@ -249,7 +236,10 @@ body:not([data-slug="index"]) {
   }
 }
 
-.block-listing-title {
+// Wrapper span around the title link — takes the available space so tags push
+// to the right edge, but the <a> inside stays inline so the hover background
+// hugs only the text (not the full row).
+.block-listing-title-cell {
   flex: 1 1 auto;
   min-width: 0;
 }
@@ -269,20 +259,127 @@ body:not([data-slug="index"]) {
   opacity: 0.6;
 }
 
+// === Footnotes =============================================================
+// Standard markdown footnote syntax (`text[^1]` + `[^1]: def`) renders the
+// inline reference in Block B and lifts the definition into Block C via the
+// BlockC_Footnotes template. Both halves are tinted orange.
+
+// Inline reference in the body — `<sup><a data-footnote-ref>1</a></sup>`.
+a[data-footnote-ref] {
+  color: var(--orange);
+  text-decoration: none;
+  font-size: 0.7em;
+  vertical-align: super;
+  line-height: 0;
+  margin-left: 0.05em;
+
+  &:hover {
+    background-color: transparent;
+    color: var(--orange);
+    text-decoration: underline;
+  }
+}
+
+// Hide the auto-rendered footnotes section at the bottom of Block B — the
+// definitions live in Block C instead.
+.block-b section[data-footnotes] {
+  display: none;
+}
+
+// Block C marginalia. Each footnote becomes a small orange paragraph; the
+// leading number is rendered manually as ::before so we can drop the <ol>
+// number marker.
+//
+// Layout: each <li> is absolutely positioned by the FOOTNOTE_POSITIONER_SCRIPT
+// inside BlockC_Footnotes.tsx so its top aligns with the reference's Y in
+// Block B. The script also sets min-height on .block-footnotes so the grid
+// row extends to fit the last footnote.
+.block-footnotes {
+  position: relative;
+  font-size: 0.85rem;
+  line-height: 1.4;
+
+  // Explicit colour on every descendant — base.scss declares `p, li { color: var(--darkgray) }`
+  // which would otherwise win over a colour inherited from `.block-footnotes`.
+  &,
+  & p,
+  & li,
+  & a {
+    color: var(--orange);
+  }
+
+  // rehype emits a screen-reader label `<h2 class="sr-only">Footnotes</h2>`
+  // ahead of the list. Hide it visually — semantics are preserved via the <ol>.
+  h2 {
+    display: none;
+  }
+
+  ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: footnote;
+    position: relative;
+  }
+
+  // Each li is absolutely positioned by JS — top is set per-footnote.
+  li {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    counter-increment: footnote;
+    margin: 0;
+    padding: 0;
+
+    &::marker { content: ""; }
+
+    // The "1" superscript prefix in front of each footnote.
+    &::before {
+      content: counter(footnote);
+      font-size: 0.75em;
+      vertical-align: super;
+      margin-right: 0.15em;
+    }
+
+    p {
+      display: inline;
+      margin: 0;
+    }
+  }
+
+  // Hide the ↩ back-to-reference link — visual clutter for marginalia.
+  a[data-footnote-backref] {
+    display: none;
+  }
+}
+
 // === Homepage article + folder nav ==========================================
 // The trailing <ul> in content/index.md becomes the horizontal folder nav.
 .block-home {
   & > :first-child { margin-top: 0; }
 
-  ul:last-child {
+  // Images in the homepage content (e.g. me.png) are capped at half of
+  // Block B's width, scaling with the viewport.
+  img {
+    max-width: 50%;
+    height: auto;
+    border-radius: 0;
+  }
+
+  // The folder nav <ul>. Previously `ul:last-child` — but once a `[^1]: …`
+  // footnote definition is added to the page, remark-gfm appends a
+  // <section data-footnotes> at the end of the article, so the <ul> is no
+  // longer the last child. `> ul` matches any direct child unordered list,
+  // which on the homepage is only the folder nav.
+  & > ul {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     gap: 20px;
     list-style: none;
-    margin: 20px 0 0 0;
-    padding: 20px 0 0 0;
-    border-top: 1px solid rgba(0, 0, 238, 0.1);
+    margin: 60px 0 0 0;
+    padding: 0;
 
     & > li {
       list-style: none;

@@ -51,13 +51,12 @@ interface BreadcrumbsTrailProps {
  * always 2 segments; we render it inline rather than calling the breadcrumbs
  * plugin so this block is self-contained.
  */
-function BreadcrumbsTrail({ slug, title }: BreadcrumbsTrailProps) {
-  const trimmed = slug.replace(/\/index$/, "")
+function BreadcrumbsTrail({ slug: _slug, title }: BreadcrumbsTrailProps) {
   return (
     <nav class="block-breadcrumbs" aria-label="breadcrumbs">
       <a href="/" class="internal">home</a>
       <span class="breadcrumb-sep"> — </span>
-      <a href={`/${trimmed}/`} class="internal">{title}</a>
+      <span class="breadcrumb-current">{title}</span>
     </nav>
   )
 }
