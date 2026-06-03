@@ -526,8 +526,24 @@ a[data-footnote-ref] {
   }
 }
 
-// When user is hovering the list, dim every non-hovered, non-active item.
-.block-tag-filter:hover .block-tag-filter-item:not(:hover):not(.active) {
+// Two modes for tag opacity:
+//
+//   1. BROWSE MODE (no tag selected) — hovering the list dims the
+//      non-hovered tags, previewing the focus.
+//   2. ACTIVE MODE (a tag IS selected, filter engaged) — non-active
+//      tags STAY dimmed even when the mouse is elsewhere, so the
+//      filter state remains visually obvious.
+//
+// In active mode the hover preview is disabled; the persistent dim
+// already communicates which tag is "in charge" and switching it on
+// hover would be noisy.
+.block-tag-filter:not(:has(.block-tag-filter-item.active)):hover
+  .block-tag-filter-item:not(:hover) {
+  opacity: 0.5;
+}
+
+.block-tag-filter:has(.block-tag-filter-item.active)
+  .block-tag-filter-item:not(.active) {
   opacity: 0.5;
 }
 
