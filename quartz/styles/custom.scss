@@ -158,7 +158,7 @@ a.external:has(> p > img) {
 #quartz-root > #quartz-body {
   display: grid;
   grid-template-columns: repeat(9, minmax(0, 1fr));
-  column-gap: 20px;
+  column-gap: 40px;
   padding: 40px;
   width: 100%;
   max-width: 100%;
@@ -167,8 +167,9 @@ a.external:has(> p > img) {
   box-sizing: border-box;
   position: relative;
 
-  // Column-width helper used by the divider positioning calc().
-  --col-w: calc((100% - 240px) / 9);
+  // Column-width helper used by future divider positioning. Derived from:
+  // 100% minus (2 × 40px outer margin) minus (8 × 40px column gaps) = 400px.
+  --col-w: calc((100% - 400px) / 9);
 
   @media all and ($mobile) {
     grid-template-columns: 1fr;

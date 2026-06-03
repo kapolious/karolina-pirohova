@@ -3,8 +3,12 @@ import { BlockTemplate } from "./types"
 /**
  * Block A for detail / note pages.
  *
- * Layout: just the breadcrumbs trail (`home — folder — note title`).
- * The note's own title belongs in Block B above the body, not here.
+ * Layout (top → bottom):
+ *   1. Breadcrumbs trail (`home — folder — note title`)
+ *   2. Note title (24px bold, styled by `.block-title` in SCSS)
+ *
+ * Same shape as BlockA_FolderInfo's first two rows — keeps the heading
+ * position consistent across folder index pages and individual notes.
  */
 const BlockA_NoteInfo: BlockTemplate = (props) => {
   const { fileData } = props
@@ -14,18 +18,21 @@ const BlockA_NoteInfo: BlockTemplate = (props) => {
   const segments = buildBreadcrumbs(slug, title)
 
   return (
-    <nav class="block-breadcrumbs" aria-label="breadcrumbs">
-      {segments.map((seg, i) => (
-        <>
-          {i > 0 && <span class="breadcrumb-sep"> — </span>}
-          {seg.href ? (
-            <a href={seg.href} class="internal">{seg.label}</a>
-          ) : (
-            <span class="breadcrumb-current">{seg.label}</span>
-          )}
-        </>
-      ))}
-    </nav>
+    <>
+      <nav class="block-breadcrumbs" aria-label="breadcrumbs">
+        {segments.map((seg, i) => (
+          <>
+            {i > 0 && <span class="breadcrumb-sep"> — </span>}
+            {seg.href ? (
+              <a href={seg.href} class="internal">{seg.label}</a>
+            ) : (
+              <span class="breadcrumb-current">{seg.label}</span>
+            )}
+          </>
+        ))}
+      </nav>
+      <h1 class="block-title">{title}</h1>
+    </>
   )
 }
 
