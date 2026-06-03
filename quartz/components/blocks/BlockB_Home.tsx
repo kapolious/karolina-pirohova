@@ -8,17 +8,17 @@ import { BlockTemplate } from "./types"
  *
  * Renders the markdown of `content/index.md` as-is, plus a hidden HTML5
  * <audio> element + small script that turns the homepage image into an
- * audio easter egg. Triggered only when the pointer is over an OPAQUE
- * pixel of the image (the blue silhouette); transparent corners are inert.
+ * audio easter egg. The image behaves as a hyperlink — clicked/tapped
+ * (not hovered) to activate. The blue silhouette is the click target;
+ * transparent corners are inert on every device.
  *
- *   On hover-capable devices (desktop with mouse):
- *     – mouse moves into a blue pixel  → seek to 0 + play
- *     – mouse moves into transparency, or leaves entirely → pause
+ *   On every device:
+ *     – click/tap on a blue pixel       → seek to 0 + play
+ *     – click/tap on a blue pixel again → pause
+ *     – click/tap on a transparent area → ignored
  *
- *   On touch-only devices (phone/tablet):
- *     – tap on a blue pixel  → seek to 0 + play
- *     – tap on a blue pixel again → pause
- *     – tap on transparency → ignored
+ *   Hover-capable devices additionally get a pointer cursor when over the
+ *   opaque silhouette, so the click affordance is discoverable.
  *
  * The <audio> tag uses `preload="auto"` so the file is fetched in the
  * background at page load — first play has zero perceptible delay.
@@ -106,41 +106,33 @@ const HOVER_PLAYER_SCRIPT = `
 
     var hoverCapable = window.matchMedia && window.matchMedia('(hover: hover)').matches;
 
+    // Universal click/tap toggle: opaque pixel only, transparent ignored.
+    var playing = false;
+    img.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (!isPixelOpaque(img, e.clientX, e.clientY)) return;
+      if (playing) { pauseAudio(); playing = false; }
+      else { playFromStart(); playing = true; }
+    });
+
+    // On hover-capable devices: cursor changes to pointer over the blue
+    // silhouette and back to default over transparent corners. Throttled
+    // via requestAnimationFrame so it's basically free even on fast swipes.
     if (hoverCapable) {
-      // Desktop: pixel-aware mousemove gates play state.
-      var inOpaque = false;
       var rafId = null;
+      img.style.cursor = 'default';
 
       img.addEventListener('mousemove', function (e) {
         var x = e.clientX, y = e.clientY;
         if (rafId) cancelAnimationFrame(rafId);
         rafId = requestAnimationFrame(function () {
-          var opaque = isPixelOpaque(img, x, y);
-          if (opaque && !inOpaque) {
-            playFromStart();
-            inOpaque = true;
-          } else if (!opaque && inOpaque) {
-            pauseAudio();
-            inOpaque = false;
-          }
+          img.style.cursor = isPixelOpaque(img, x, y) ? 'pointer' : 'default';
         });
       });
 
       img.addEventListener('mouseleave', function () {
         if (rafId) cancelAnimationFrame(rafId);
-        if (inOpaque) {
-          pauseAudio();
-          inOpaque = false;
-        }
-      });
-    } else {
-      // Touch: tap on opaque toggles play/pause; tap on transparency ignored.
-      var playing = false;
-      img.addEventListener('click', function (e) {
-        e.preventDefault();
-        if (!isPixelOpaque(img, e.clientX, e.clientY)) return;
-        if (playing) { pauseAudio(); playing = false; }
-        else { playFromStart(); playing = true; }
+        img.style.cursor = 'default';
       });
     }
   }
