@@ -32,7 +32,7 @@ const BlockB_Listing: BlockTemplate = (props) => {
         const title = page.frontmatter?.title ?? lastSegment(page.slug ?? "")
         const tags = page.frontmatter?.tags ?? []
         return (
-          <li>
+          <li data-title={title} data-tags={tags.join(",")}>
             <span class="block-listing-title-cell">
               <a href={`/${page.slug}`} class="internal">
                 {title}

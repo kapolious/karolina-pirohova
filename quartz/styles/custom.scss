@@ -49,6 +49,14 @@ p, li, tbody {
   font-size: 14px;
 }
 
+// Modern browsers: smarter line-breaking that avoids orphans on the last
+// line of paragraphs. Works alongside the single-letter-tying JS in
+// BlockFrame.tsx — that handles short prepositions, this handles general
+// rag. Quietly does nothing on older browsers.
+p, li, h1, h2, h3, h4, h5, h6 {
+  text-wrap: pretty;
+}
+
 ::selection {
   background-color: rgba(0, 0, 238, 0.10);
   color: var(--secondary);
@@ -186,16 +194,78 @@ a.external:has(> p > img) {
 }
 
 // === Block placement — fixed column ranges, regardless of page kind ========
+//
+//   Block A: cols 1-2  (context: breadcrumbs, title, intro)
+//   Block B: cols 3-5  (main content — kept narrow for line length)
+//   Block C: cols 6-7  (extras: footnotes, filters)
+//   Cols 8-9: intentional empty space — breathing room on the right edge.
+//
+// Block widths are deliberately on the small side to keep paragraphs
+// readable on wide screens (long lines are hard for the eye to track).
 
 .block-a { grid-column: 1 / span 2; }
-.block-b { grid-column: 3 / span 4; }
-.block-c { grid-column: 7 / span 3; }
+.block-b { grid-column: 3 / span 3; }
+.block-c { grid-column: 6 / span 2; }
 
 .block-a, .block-b, .block-c {
   min-width: 0;
 
   @media all and ($mobile) {
     grid-column: 1;
+  }
+}
+
+// --- Per-folder layout overrides ------------------------------------------
+//
+// The default layout (A=2, B=3, C=2, cols 8-9 empty) keeps line lengths
+// comfortable for reading. Some folders need a different distribution —
+// e.g. the friction index needs room to sprawl. Override Block widths
+// here per page slug; no template changes required.
+
+// Friction folder index: a self-contained viewport with the constellation
+// centered. Block B grows to cover cols 3-9, Block C is hidden, the grid
+// row is locked to viewport height, and the SVG scales to fit while
+// staying centered horizontally + vertically. Page itself doesn't scroll.
+body[data-slug="friction/index"] {
+  #quartz-root > #quartz-body {
+    height: 100vh;
+    grid-template-rows: 1fr; // single row that fills the locked height
+    overflow: hidden;
+  }
+
+  .block-a {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .block-b {
+    grid-column: 3 / span 7;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .block-c {
+    display: none;
+  }
+
+  // Constellation fills Block B exactly. The SVG gets viewport-relative
+  // sizing directly (rather than relying on % cascading through the grid
+  // item) — that way it always expands to fill, instead of falling back
+  // to its intrinsic 800×800 viewBox dimensions.
+  //
+  // The SVG's own preserveAspectRatio="xMidYMid meet" centers the 1:1
+  // viewBox content inside the rectangle, so the star is dead-centered
+  // both axes whatever the screen size.
+  .block-thoughts-star {
+    width: 100%;
+    height: calc(100vh - 80px); // 100vh − 2× #quartz-body padding (40px each)
+
+    svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
   }
 }
 
@@ -381,6 +451,173 @@ a[data-footnote-ref] {
   a[data-footnote-backref] {
     display: none;
   }
+}
+
+// === Thoughts folder: search + tag filter + constellation ==================
+// Used by BlockA_ThoughtsInfo and BlockB_ThoughtsStar.
+
+// Orange search input. No top margin — sits flush at the top of Block C.
+.block-search {
+  display: block;
+  width: 100%;
+  margin: 0 0 1rem 0;
+  padding: 0.4rem 0.6rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--orange);
+  background: transparent;
+  border: 1px solid var(--orange);
+  outline: none;
+  box-sizing: border-box;
+  border-radius: 0;
+
+  &::placeholder {
+    color: var(--orange);
+    opacity: 0.6;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+// Tag filter list. The hover-dims-others effect is pure CSS via :hover on
+// the parent + :not(:hover) on items.
+.block-tag-filter {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1rem;
+
+  & > li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    &::marker { content: ""; }
+  }
+}
+
+.block-tag-filter-item {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--orange);
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+
+  &:hover {
+    background: none;
+    color: var(--orange);
+    opacity: 1;
+    text-decoration: none;
+  }
+
+  // Selected state: keep the same look as inactive (no underline / no
+  // hyperlink impression). The active filter is communicated by the star's
+  // (or listing's) visible items shrinking down — that IS the feedback.
+  &.active {
+    text-decoration: none;
+  }
+}
+
+// When user is hovering the list, dim every non-hovered, non-active item.
+.block-tag-filter:hover .block-tag-filter-item:not(:hover):not(.active) {
+  opacity: 0.5;
+}
+
+// === Star constellation (Block B for thoughts) ==============================
+
+.block-thoughts-star {
+  width: 100%;
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+}
+
+.thoughts-star-shape {
+  fill: var(--secondary);
+}
+
+.thought-line {
+  stroke: var(--secondary);
+  stroke-width: 1;
+}
+
+.thought-dot {
+  fill: var(--secondary);
+}
+
+// Labels sit inside foreignObject — they're real HTML, so they inherit the
+// universal `a:hover` inversion (blue rectangle background, cream text).
+// The wrap div is a flex container that pushes the inline-block label to
+// the dot-facing edge of the foreignObject so the label sits flush against
+// its dot regardless of title length.
+.thought-label-wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+
+  &.thought-label-wrap--start { justify-content: flex-start; }
+  &.thought-label-wrap--end   { justify-content: flex-end; }
+}
+
+.thought-label {
+  display: inline-block;
+  font-family: "Switzer", sans-serif;
+  font-size: 18px;
+  line-height: 1.4;
+  color: var(--secondary);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  white-space: nowrap;
+  cursor: pointer;
+  // Hover comes for free from the universal `a:hover` rule above.
+}
+
+.thought-node {
+  transition: opacity 0.2s ease;
+}
+
+// Filtered-out items.
+//
+// Constellation nodes are absolutely positioned inside the SVG, so a fade-
+// out is enough (and ideal — the other thoughts stay where they were).
+.thought-node {
+  transition: opacity 0.2s ease;
+}
+.thought-node.thought-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+// Listing rows collapse: max-height + margin animate to zero so the
+// remaining rows slide up smoothly to fill the space. The 4rem max-height
+// is comfortably over a single-line row; if you ever make multi-line rows,
+// bump it.
+.block-listing > li {
+  overflow: hidden;
+  max-height: 4rem;
+  transition:
+    max-height 0.25s ease,
+    margin-bottom 0.25s ease,
+    opacity 0.15s ease;
+}
+.block-listing > li.thought-hidden {
+  opacity: 0;
+  max-height: 0;
+  margin-bottom: 0;
+  pointer-events: none;
 }
 
 // === Homepage article + folder nav ==========================================

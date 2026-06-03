@@ -4,7 +4,9 @@ import BlockA_NoteInfo from "../blocks/BlockA_NoteInfo"
 import BlockB_Listing from "../blocks/BlockB_Listing"
 import BlockB_Note from "../blocks/BlockB_Note"
 import BlockB_Home from "../blocks/BlockB_Home"
+import BlockB_ThoughtsStar from "../blocks/BlockB_ThoughtsStar"
 import BlockC_Footnotes from "../blocks/BlockC_Footnotes"
+import BlockC_ThoughtsFilters from "../blocks/BlockC_ThoughtsFilters"
 import { BlockTemplate } from "../blocks/types"
 
 /**
@@ -27,7 +29,7 @@ export const BlockFrame: PageFrame = {
     const slug = (componentData.fileData as { slug?: string }).slug ?? ""
 
     const pageKind = classifyPage(slug)
-    const { BlockA, BlockB, BlockC } = templatesFor(pageKind)
+    const { BlockA, BlockB, BlockC } = templatesFor(pageKind, slug)
 
     return (
       <>
@@ -40,10 +42,66 @@ export const BlockFrame: PageFrame = {
         <div class={`block block-c block-c--${pageKind}`}>
           {BlockC && <BlockC {...componentData} />}
         </div>
+        <script dangerouslySetInnerHTML={{ __html: NO_ORPHANS_SCRIPT }} />
       </>
     )
   },
 }
+
+/**
+ * Typography polish — ties single-letter prepositions/conjunctions to the
+ * next word so they never end up alone at the end of a line. Handles both:
+ *
+ *   Czech non-syllabic prepositions: k, s, v, z, a, o, u, i (+uppercase)
+ *   English orphan single letters:   a, I (already covered by the Czech set)
+ *
+ * Implementation: walk text nodes inside `.block-a / .block-b / .block-c`
+ * after the DOM is ready (and re-run on SPA navigation), replacing the
+ * regular space that follows a single letter with a non-breaking space.
+ *
+ * Skips SCRIPT / STYLE / CODE / PRE / INPUT / TEXTAREA so we don't mangle
+ * code samples or form controls.
+ */
+const NO_ORPHANS_SCRIPT = `
+(function () {
+  if (window.__noOrphansInit) return;
+  window.__noOrphansInit = true;
+
+  // Single letters that should never end a line.
+  var SINGLES = 'aiouvszkAIOUVSZK';
+  var PATTERN = new RegExp('(^|\\\\s)([' + SINGLES + '])\\\\s+', 'g');
+  var SKIP_TAGS = { SCRIPT: 1, STYLE: 1, CODE: 1, PRE: 1, INPUT: 1, TEXTAREA: 1 };
+
+  function fixNode(node) {
+    var orig = node.nodeValue;
+    if (!orig) return;
+    var fixed = orig.replace(PATTERN, '$1$2\\u00a0');
+    if (fixed !== orig) node.nodeValue = fixed;
+  }
+
+  function walk(el) {
+    if (!el) return;
+    if (el.nodeType === 3) { fixNode(el); return; }
+    if (el.nodeType !== 1) return;
+    if (SKIP_TAGS[el.tagName]) return;
+    if (el.dataset && el.dataset.noOrphans === 'done') return;
+    for (var i = 0; i < el.childNodes.length; i++) walk(el.childNodes[i]);
+    if (el.dataset) el.dataset.noOrphans = 'done';
+  }
+
+  function run() {
+    var blocks = document.querySelectorAll('.block-a, .block-b, .block-c');
+    for (var i = 0; i < blocks.length; i++) walk(blocks[i]);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
+  }
+  document.addEventListener('nav', run);
+})();
+`
 
 type PageKind = "home" | "folder" | "note"
 
@@ -60,11 +118,14 @@ interface BlockSet {
 }
 
 /**
- * The puzzle assembly: pick a template for each block based on page kind.
- * To customise (e.g. a different Block B for the portfolio folder), extend
- * the branching here — keep this function the single source of truth.
+ * The puzzle assembly: pick a template for each block based on page kind
+ * (and slug, when a specific folder gets its own layout).
+ *
+ * To customise: add a slug-based branch inside the relevant case. For
+ * example, the `thoughts/` folder swaps the standard listing for a star
+ * constellation. The rest of the folders fall through to the default.
  */
-function templatesFor(kind: PageKind): BlockSet {
+function templatesFor(kind: PageKind, slug: string): BlockSet {
   switch (kind) {
     case "home":
       return {
@@ -73,6 +134,26 @@ function templatesFor(kind: PageKind): BlockSet {
         BlockC: BlockC_Footnotes,
       }
     case "folder":
+      if (slug.startsWith("friction/")) {
+        // friction: star constellation of notes, no filter UI yet.
+        return {
+          BlockA: BlockA_FolderInfo,
+          BlockB: BlockB_ThoughtsStar,
+          BlockC: BlockC_Footnotes,
+        }
+      }
+      if (slug.startsWith("thoughts/")) {
+        // thoughts: search + tag list in C waiting for a custom B view.
+        // BlockB_Listing is the placeholder until that view is designed —
+        // it'll just show the notes as a list for now (filters won't act
+        // on listing rows; they target `.thought-node` elements from the
+        // constellation template).
+        return {
+          BlockA: BlockA_FolderInfo,
+          BlockB: BlockB_Listing,
+          BlockC: BlockC_ThoughtsFilters,
+        }
+      }
       return {
         BlockA: BlockA_FolderInfo,
         BlockB: BlockB_Listing,

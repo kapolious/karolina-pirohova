@@ -1,4 +1,4 @@
-to start with my favorite lana del rey quote from her poem *'SportCruiser'*:
+i would like to start with my favorite lana del rey quote from her poem *'SportCruiser'*:
 
 > i'm not a captain.
 > i'm not a pilot. 
