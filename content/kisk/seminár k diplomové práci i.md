@@ -1,7 +1,7 @@
 ---
 title: seminár k diplomové práci i
-tags:
-  - iskm04
+kód: iskm04
+semester: jeseň 2025
 ---
 vďaka semináru som nadobudla predstavu o tom, ako sa k diplomovým prácam na katedre pristupuje hneď v úvode štúdia, čo mi príde praktické. rovnako oceňujem aj organizáciu predmetu – skutočnosť, že prednášky boli online a harmonogram so stručným popisom bol vopred známy, umožňoval vyberať si prednášky podľa osobného záujmu.
 

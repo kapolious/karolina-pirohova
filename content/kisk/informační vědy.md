@@ -1,7 +1,8 @@
 ---
 title: informační vědy
-tags:
-  - iskm01
+kód: iskm01
+semester: jeseň 2025
+vyučujúci: m. černý
 ---
 pred absolvovaním kurzu som o informačných vedách nevedela okrem pár buzzwords takmer nič. teraz spätne nemám dojem, že by som si vytvorila úplne solídny pohľad na informačné vedy ako také – no zároveň možno to ani nebolo cieľom. 
 

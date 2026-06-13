@@ -4,9 +4,11 @@ import BlockA_NoteInfo from "../blocks/BlockA_NoteInfo"
 import BlockB_Listing from "../blocks/BlockB_Listing"
 import BlockB_Note from "../blocks/BlockB_Note"
 import BlockB_Home from "../blocks/BlockB_Home"
-import BlockB_ThoughtsStar from "../blocks/BlockB_ThoughtsStar"
+import BlockB_TagIndex from "../blocks/BlockB_TagIndex"
+import BlockB_Friction from "../blocks/BlockB_Friction"
 import BlockC_Footnotes from "../blocks/BlockC_Footnotes"
 import BlockC_ThoughtsFilters from "../blocks/BlockC_ThoughtsFilters"
+import BlockC_TagIndexSearch from "../blocks/BlockC_TagIndexSearch"
 import { BlockTemplate } from "../blocks/types"
 
 /**
@@ -134,11 +136,22 @@ function templatesFor(kind: PageKind, slug: string): BlockSet {
         BlockC: BlockC_Footnotes,
       }
     case "folder":
-      if (slug.startsWith("friction/")) {
-        // friction: star constellation of notes, no filter UI yet.
+      if (slug === "tags/index") {
+        // tag index: alphabetical a–z grid of every tag site-wide,
+        // with an orange search field in Block C.
         return {
           BlockA: BlockA_FolderInfo,
-          BlockB: BlockB_ThoughtsStar,
+          BlockB: BlockB_TagIndex,
+          BlockC: BlockC_TagIndexSearch,
+        }
+      }
+      if (slug.startsWith("friction/")) {
+        // friction: Obsidian-style force-directed graph view of the whole
+        // site (wikilinks become edges). Better signal-to-aesthetic ratio
+        // for thesis-stage work than the static constellation.
+        return {
+          BlockA: BlockA_FolderInfo,
+          BlockB: BlockB_Friction,
           BlockC: BlockC_Footnotes,
         }
       }

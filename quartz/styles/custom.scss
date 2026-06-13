@@ -249,20 +249,47 @@ body[data-slug="friction/index"] {
     display: none;
   }
 
-  // Constellation fills Block B exactly. The SVG gets viewport-relative
-  // sizing directly (rather than relying on % cascading through the grid
-  // item) — that way it always expands to fill, instead of falling back
-  // to its intrinsic 800×800 viewBox dimensions.
+  // Friction's Block B hosts Quartz's Graph component (force-directed,
+  // D3 + Pixi). We render the LOCAL graph (with depth: -1 it covers the
+  // whole site) inline, filling Block B's cols 3-9 × 100vh canvas.
   //
-  // The SVG's own preserveAspectRatio="xMidYMid meet" centers the 1:1
-  // viewBox content inside the rectangle, so the star is dead-centered
-  // both axes whatever the screen size.
-  .block-thoughts-star {
+  // The plugin ships its own CSS that constrains the local graph to a
+  // 250px-tall bordered box and renders the global graph as a modal
+  // overlay. The overrides below: remove the box constraints + chrome,
+  // hide the modal-toggle button and the modal itself.
+  .block-friction-graph {
     width: 100%;
-    height: calc(100vh - 80px); // 100vh − 2× #quartz-body padding (40px each)
+    height: calc(100vh - 80px); // 100vh − 2× #quartz-body padding
+    position: relative;
+    display: flex;
 
-    svg {
-      display: block;
+    .graph {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    // Hide the plugin's section heading + the global-graph modal-toggle
+    // button + the modal overlay itself. We only want the inline canvas.
+    .graph > h3,
+    .graph .global-graph-icon,
+    .graph > .global-graph-outer {
+      display: none;
+    }
+
+    // Strip the plugin's bordered fixed-height box and let the inline
+    // local-graph container fill all of Block B.
+    .graph > .graph-outer {
+      border: none;
+      border-radius: 0;
+      height: auto;
+      flex: 1 1 auto;
+      margin: 0;
+      overflow: visible;
+    }
+
+    .graph-container {
       width: 100%;
       height: 100%;
     }
@@ -302,6 +329,37 @@ body[data-slug="friction/index"] {
   font-weight: 700;
   line-height: 1.2;
   margin: 0 0 1rem 0;
+}
+
+// Frontmatter properties under the title on detail pages. Each row is
+// independent — key, 10px gap, value — no column alignment between rows
+// (so the value position floats with the length of each key, not pulled
+// to a shared column edge). Tinted orange site-wide so they read as
+// marginalia — a small note attached to the title rather than primary
+// content. Same colour as the footnote block in Block C.
+.block-properties {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 1.5rem 0 0 0;
+  padding: 0;
+  color: var(--orange);
+
+  .block-property {
+    display: flex;
+    gap: 10px;
+  }
+
+  dt, dd { margin: 0; color: var(--orange); }
+  .block-property-key { font-weight: 400; }
+  .block-property-value { font-weight: 700; }
+}
+
+// In the kisk folder listing, hide tag chips — kisk notes no longer use
+// tags as a connecting mechanism (the relevant metadata moved to
+// frontmatter properties shown on the detail page).
+body[data-slug="kisk/index"] .block-listing-tags {
+  display: none;
 }
 
 // Folder intro paragraphs (the markdown body of <folder>/index.md).
@@ -453,6 +511,55 @@ a[data-footnote-ref] {
   }
 }
 
+// === Tag index page (/tags/) ================================================
+// Alphabetical a–z grid of every tag used across the site. Each letter is
+// a row of tags wrapped via flex; empty letters render with just the heading.
+//
+//   gap between tags horizontally: 20px
+//   gap between rows of tags:      10px
+//   gap between letter groups:     20px
+
+.block-tag-index > .tag-index-group {
+  margin-bottom: 20px;
+
+  &:last-child { margin-bottom: 0; }
+}
+
+.tag-index-letter {
+  font-family: "Switzer", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--secondary);
+  margin: 0 0 10px 0;
+  line-height: 1.2;
+}
+
+.tag-index-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 20px;
+  row-gap: 10px;
+
+  & > li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    &::marker { content: ""; }
+  }
+}
+
+// The tag-page plugin auto-titles this page "Tag Index" (TitleCase). The
+// site otherwise stays in lowercase, so flatten both the heading and the
+// current-page segment of the breadcrumbs to match.
+body[data-slug="tags/index"] .block-title,
+body[data-slug="tags/index"] .breadcrumb-current {
+  text-transform: lowercase;
+}
+
 // === Thoughts folder: search + tag filter + constellation ==================
 // Used by BlockA_ThoughtsInfo and BlockB_ThoughtsStar.
 
@@ -547,75 +654,10 @@ a[data-footnote-ref] {
   opacity: 0.5;
 }
 
-// === Star constellation (Block B for thoughts) ==============================
-
-.block-thoughts-star {
-  width: 100%;
-
-  svg {
-    display: block;
-    width: 100%;
-    height: auto;
-    overflow: visible;
-  }
-}
-
-.thoughts-star-shape {
-  fill: var(--secondary);
-}
-
-.thought-line {
-  stroke: var(--secondary);
-  stroke-width: 1;
-}
-
-.thought-dot {
-  fill: var(--secondary);
-}
-
-// Labels sit inside foreignObject — they're real HTML, so they inherit the
-// universal `a:hover` inversion (blue rectangle background, cream text).
-// The wrap div is a flex container that pushes the inline-block label to
-// the dot-facing edge of the foreignObject so the label sits flush against
-// its dot regardless of title length.
-.thought-label-wrap {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-
-  &.thought-label-wrap--start { justify-content: flex-start; }
-  &.thought-label-wrap--end   { justify-content: flex-end; }
-}
-
-.thought-label {
-  display: inline-block;
-  font-family: "Switzer", sans-serif;
-  font-size: 18px;
-  line-height: 1.4;
-  color: var(--secondary);
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
-  white-space: nowrap;
-  cursor: pointer;
-  // Hover comes for free from the universal `a:hover` rule above.
-}
-
-.thought-node {
-  transition: opacity 0.2s ease;
-}
-
-// Filtered-out items.
-//
-// Constellation nodes are absolutely positioned inside the SVG, so a fade-
-// out is enough (and ideal — the other thoughts stay where they were).
-.thought-node {
-  transition: opacity 0.2s ease;
-}
-.thought-node.thought-hidden {
-  opacity: 0;
-  pointer-events: none;
-}
+// (The star constellation styles previously here have been removed — the
+// constellation template was deleted along with the friction switch to
+// Obsidian-style graph view. The `.thought-hidden` class is reused below
+// by the listing filter, which is the only place that still emits it.)
 
 // Listing rows collapse: max-height + margin animate to zero so the
 // remaining rows slide up smoothly to fill the space. The 4rem max-height

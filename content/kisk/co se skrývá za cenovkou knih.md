@@ -1,7 +1,8 @@
 ---
 title: co se skrývá za cenovkou knih
-tags:
-  - iskb75
+kód: iskb75
+semester: jeseň 2025
+vyučujúci: a. bloch
 ---
 predmety, ktoré majú diskusný charakter, majú u mňa vždy špeciálne miesto, a v tomto prípade tomu nie je inak. cením a obdivujem nadšenie vyučujúcej rovnako ako jej neuveriteľne rozsiahly prehľad o tématike a situácii na (nielen) českom trhu.
 

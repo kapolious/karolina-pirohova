@@ -1,7 +1,8 @@
 ---
 title: design informačních služeb, rozhraní a interakcí
-tags:
-  - iskm02
+kód: iskm02
+semester: jeseň 2025
+vyučujúci: r. sellner novotný, l. zbiejczuk suchá
 ---
 predmety s podobným rámcom ako má tento som už v minulosti absolvovala, takže som dúfala, že nebude postavený na poučkách – želanie, ktoré sa mi nakoniec splnilo.
 

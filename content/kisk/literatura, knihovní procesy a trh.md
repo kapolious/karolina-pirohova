@@ -1,7 +1,8 @@
 ---
 title: literatura, knihovní procesy a trh
-tags:
-  - iskm03
+kód: iskm03
+semester: jeseň 2025
+vyučujúci: p. kyloušek, p. mazáčová, p. škyřík, a. bloch
 ---
 predmet mi ako neknihovníčke prichádzajúcej z odvetvia jednotiek a núl predstavil knihovnícku činnosť a nastavil solídny všeobecný prehľad. prvé dva moduly boli obsahovo hodnotné, aj keď forma prednášok pre mňa nebola najzaujímavejšia.
 

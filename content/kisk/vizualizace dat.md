@@ -1,7 +1,8 @@
 ---
 title: vizualizace dat
-tags:
-  - iskm56
+kód: iskm56
+semester: jeseň 2025
+vyučujúci: t. marek
 ---
 predmet radím v tomto semestri medzi jeden z najprínosnejších. vyučujúcemu sa podarilo vytvoriť príjemnú a vždy veselú atmosféru – čo pri predmete založenom na veľkom množstve koláčových grafov nie je samozrejmosť.
 
