@@ -39,9 +39,14 @@ body {
   font-weight: 400;
 }
 
-p, li, tbody, a, strong, b, em, h1, h2, h3, h4, h5, h6 {
+p, li, tbody, a, h1, h2, h3, h4, h5, h6 {
   font-family: "Switzer", sans-serif;
   font-weight: 400;
+  line-height: 1.4;
+}
+
+strong, b, em, i {
+  font-family: "Switzer", sans-serif;
   line-height: 1.4;
 }
 
@@ -345,6 +350,11 @@ body[data-slug="friction/index"] {
   padding: 0;
   color: var(--orange);
 
+  // When properties live in Block C (kisk note routing — see BlockFrame),
+  // they sit at the top of the column with nothing above them, so drop the
+  // 1.5rem gap that exists to separate them from the title in Block A.
+  .block-c & { margin-top: 0; }
+
   .block-property {
     display: flex;
     gap: 10px;
@@ -360,6 +370,17 @@ body[data-slug="friction/index"] {
 // frontmatter properties shown on the detail page).
 body[data-slug="kisk/index"] .block-listing-tags {
   display: none;
+}
+
+// On the CV page, blockquotes are used as a visual cue for dates rather than
+// real quotations — sit them tight against the line above (no extra margin),
+// but keep the blue left bar. Also kill the bottom margin of the paragraph
+// directly preceding a blockquote so the pair reads as one block.
+body[data-slug="cv/index"] {
+  blockquote { margin: 0; }
+  blockquote > p:first-child { margin-top: 7px; }
+  blockquote > p:last-child { margin-bottom: 14px; }
+  p:has(+ blockquote) { margin-bottom: 0; }
 }
 
 // Folder intro paragraphs (the markdown body of <folder>/index.md).
@@ -409,6 +430,95 @@ body[data-slug="kisk/index"] .block-listing-tags {
 
 .block-listing-tag {
   text-decoration: underline;
+}
+
+// Stub entries — listed for completeness but no detail page written yet,
+// so rendered as plain text (no link, no hover, no underline). Muted so
+// they read as deferred rather than primary content.
+.block-listing-stub {
+  opacity: 0.55;
+  cursor: default;
+}
+
+// Thin horizontal divider between groups in a grouped listing (see the
+// groupBy / groupOrder folder-frontmatter convention in BlockB_Listing).
+// Renders as a list-item-shaped <li> so the surrounding flex column on
+// `.block-listing > li` keeps working.
+.block-listing-divider-row {
+  display: block !important;
+  border-top: 1px solid var(--secondary);
+  margin: 0.75rem 0 !important;
+  padding: 0 !important;
+  height: 0;
+}
+
+// `thoughts/` variant of the listing — date | title | tags per row, a
+// thin blue divider under every row, and a layered click model:
+//   • clicking anywhere on the row (except the tag) → opens the note
+//   • clicking the [tag] → opens the tag page
+// Achieved with the "stretched link" pattern: the title <a> grows a
+// ::before that fills the entire li so clicks on the date or whitespace
+// route to the same anchor. The tag <a> sits above the pseudo with a
+// higher z-index so it stays independently clickable.
+.block-listing--thoughts {
+  & > li {
+    position: relative;          // positioning context for the stretched ::before
+    border-bottom: 1px solid var(--secondary);
+    padding: 0.5rem 0;
+    margin: 0;
+    gap: 1.5rem;
+
+    &:last-child { border-bottom: none; }
+  }
+
+  .block-listing-date {
+    flex: 0 0 auto;
+    color: var(--secondary);
+  }
+
+  // Stretch the title link's click area to cover the whole li.
+  .block-listing-row-link {
+    // base.scss puts `transition: color 0.2s ease` on every <a>. The row
+    // background snaps off instantly when hover ends, so without this the
+    // title text would linger on cream-on-cream for ~200ms while it fades
+    // back to blue. Kill the transition for snappy row<->tag handoff.
+    transition: none;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+  }
+
+  // Lift tags above the stretched pseudo so they remain their own click target.
+  .block-listing-tags {
+    position: relative;
+    z-index: 2;
+  }
+
+  // Hover anywhere on the row (except the tag) → highlight the whole row
+  // blue with cream text. When the cursor crosses onto the tag, the row
+  // reverts and `a.internal:hover` takes over for the tag alone.
+  & > li:has(.block-listing-row-link:hover) {
+    background-color: var(--secondary);
+    color: var(--light);
+
+    .block-listing-date,
+    .block-listing-row-link,
+    .block-listing-tag {
+      color: var(--light);
+    }
+  }
+
+  // Filter collapse: when a row is hidden by BlockC_ThoughtsFilters, also
+  // collapse the row's border + padding so no orphan blue line remains.
+  & > li.thought-hidden {
+    border-bottom-width: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
 }
 
 .block-empty-state {

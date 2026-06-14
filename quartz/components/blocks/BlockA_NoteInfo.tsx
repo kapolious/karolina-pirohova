@@ -13,15 +13,40 @@ import { BlockTemplate } from "./types"
  *
  * Same shape as BlockA_FolderInfo's first two rows, plus the extra
  * properties block when frontmatter has any.
+ *
+ * For routes that show properties in Block C instead (kisk note details),
+ * use `BlockA_NoteHeader` below — same crumbs + title, no properties.
  */
 const BlockA_NoteInfo: BlockTemplate = (props) => {
   const { fileData } = props
-  const slug = (fileData as { slug?: string }).slug ?? ""
-  const title = (fileData.frontmatter?.title as string | undefined) ?? lastSegment(slug)
   const properties = extractProperties(
     fileData.frontmatter as Record<string, unknown> | undefined,
   )
+  return (
+    <>
+      <NoteHeader {...props} />
+      <NotePropertiesList properties={properties} />
+    </>
+  )
+}
 
+/**
+ * Block A variant for routes that move properties to Block C — renders the
+ * crumbs + title only.
+ */
+export const BlockA_NoteHeader: BlockTemplate = (props) => <NoteHeader {...props} />
+
+/**
+ * Shared inner: breadcrumbs + 24px title. Reads the slug + title from
+ * fileData, like the original component did.
+ */
+const NoteHeader: BlockTemplate = (props) => {
+  const { fileData } = props
+  const slug = (fileData as { slug?: string }).slug ?? ""
+  const fallbackName = slug.endsWith("/index")
+    ? slug.split("/").filter(Boolean).slice(-2, -1)[0] ?? lastSegment(slug)
+    : lastSegment(slug)
+  const title = (fileData.frontmatter?.title as string | undefined) ?? fallbackName
   const segments = buildBreadcrumbs(slug, title)
 
   return (
@@ -39,17 +64,25 @@ const BlockA_NoteInfo: BlockTemplate = (props) => {
         ))}
       </nav>
       <h1 class="block-title">{title}</h1>
-      {properties.length > 0 && (
-        <dl class="block-properties">
-          {properties.map((p) => (
-            <div class="block-property">
-              <dt class="block-property-key">{p.key}</dt>
-              <dd class="block-property-value">{p.value}</dd>
-            </div>
-          ))}
-        </dl>
-      )}
     </>
+  )
+}
+
+/**
+ * Shared properties list — the `<dl class="block-properties">` block.
+ * Renders nothing if there are no properties.
+ */
+export function NotePropertiesList({ properties }: { properties: Property[] }) {
+  if (properties.length === 0) return null
+  return (
+    <dl class="block-properties">
+      {properties.map((p) => (
+        <div class="block-property">
+          <dt class="block-property-key">{p.key}</dt>
+          <dd class="block-property-value">{p.value}</dd>
+        </div>
+      ))}
+    </dl>
   )
 }
 
@@ -62,7 +95,19 @@ function buildBreadcrumbs(slug: string, currentTitle: string): Crumb[] {
   const crumbs: Crumb[] = [{ label: "home", href: "/" }]
   const parts = slug.split("/").filter(Boolean)
 
-  // Walk every directory segment except the last (which is the file itself).
+  // Folder-as-page (slug like "cv/index"): the second-to-last segment IS
+  // the page. Walk earlier dir segments, then drop the literal "index" and
+  // use the folder name as the current crumb.
+  if (parts[parts.length - 1] === "index" && parts.length >= 2) {
+    for (let i = 0; i < parts.length - 2; i++) {
+      const path = "/" + parts.slice(0, i + 1).join("/") + "/"
+      crumbs.push({ label: parts[i]!, href: path })
+    }
+    crumbs.push({ label: currentTitle, href: null })
+    return crumbs
+  }
+
+  // Detail page: walk every directory segment except the last (the file).
   for (let i = 0; i < parts.length - 1; i++) {
     const path = "/" + parts.slice(0, i + 1).join("/") + "/"
     crumbs.push({ label: parts[i]!, href: path })
@@ -102,12 +147,14 @@ const RESERVED_KEYS = new Set([
   "comments",
 ])
 
-interface Property {
+export interface Property {
   key: string
   value: string
 }
 
-function extractProperties(frontmatter: Record<string, unknown> | undefined): Property[] {
+export function extractProperties(
+  frontmatter: Record<string, unknown> | undefined,
+): Property[] {
   if (!frontmatter) return []
   const out: Property[] = []
   for (const key of Object.keys(frontmatter)) {

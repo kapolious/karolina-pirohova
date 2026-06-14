@@ -1,12 +1,14 @@
 import { PageFrame, PageFrameProps } from "./types"
 import BlockA_FolderInfo from "../blocks/BlockA_FolderInfo"
-import BlockA_NoteInfo from "../blocks/BlockA_NoteInfo"
+import BlockA_NoteInfo, { BlockA_NoteHeader } from "../blocks/BlockA_NoteInfo"
 import BlockB_Listing from "../blocks/BlockB_Listing"
 import BlockB_Note from "../blocks/BlockB_Note"
 import BlockB_Home from "../blocks/BlockB_Home"
 import BlockB_TagIndex from "../blocks/BlockB_TagIndex"
 import BlockB_Friction from "../blocks/BlockB_Friction"
+import BlockB_Thoughts from "../blocks/BlockB_Thoughts"
 import BlockC_Footnotes from "../blocks/BlockC_Footnotes"
+import BlockC_PropertiesFootnotes from "../blocks/BlockC_PropertiesFootnotes"
 import BlockC_ThoughtsFilters from "../blocks/BlockC_ThoughtsFilters"
 import BlockC_TagIndexSearch from "../blocks/BlockC_TagIndexSearch"
 import { BlockTemplate } from "../blocks/types"
@@ -45,6 +47,7 @@ export const BlockFrame: PageFrame = {
           {BlockC && <BlockC {...componentData} />}
         </div>
         <script dangerouslySetInnerHTML={{ __html: NO_ORPHANS_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: FRICTION_GRAPH_FILTER_SCRIPT }} />
       </>
     )
   },
@@ -105,6 +108,80 @@ const NO_ORPHANS_SCRIPT = `
 })();
 `
 
+/**
+ * Filters the global `fetchData` (Quartz's content-index promise) down to
+ * the friction folder + one-hop outgoing links — but ONLY when the user
+ * is on `/friction/`. On any other page this script no-ops.
+ *
+ * Why it lives in BlockFrame and not BlockB_Friction.tsx: the script
+ * needs to register a `nav` listener BEFORE the user navigates to
+ * friction. Inline scripts inside SPA-swapped HTML don't auto-execute,
+ * so if the script only existed in friction's own block, it'd never
+ * fire on SPA nav into the page — you'd only see the filter take
+ * effect after a hard refresh. Putting it in the frame guarantees
+ * it runs once on whichever page is loaded first, registers the nav
+ * listener, and that listener handles every subsequent navigation.
+ *
+ * Mechanics: `const fetchData = fetch(...).then(json)` is declared at
+ * the top level of a head script. The binding can't be reassigned and
+ * isn't on `window`, but the Promise it points to IS mutable when
+ * resolved. We attach a `.then(mutate)` before the graph plugin's
+ * `await fetchData` resolves; `.then` callbacks fire FIFO, so as long
+ * as our listener is registered before the graph's, our mutation runs
+ * first and the graph sees the filtered object.
+ *
+ * Side effect: the mutation persists for the session. If a future page
+ * uses the graph plugin (currently none do besides friction), it'd see
+ * the filtered data. This script needs revisiting when that happens.
+ */
+const FRICTION_GRAPH_FILTER_SCRIPT = `
+(function () {
+  if (window.__frictionFilterInit) return;
+  window.__frictionFilterInit = true;
+
+  function isFrictionIndex() {
+    return (document.body.dataset.slug || '') === 'friction/index';
+  }
+
+  function normaliseSlug(s) {
+    return String(s || '').replace(/^\\/+/, '').replace(/\\/+$/, '');
+  }
+
+  function attach() {
+    if (!isFrictionIndex()) return;
+    if (typeof fetchData === 'undefined') {
+      console.warn('[FrictionFilter] fetchData binding not visible');
+      return;
+    }
+    fetchData.then(function (data) {
+      if (!data || typeof data !== 'object') return;
+      var keep = Object.create(null);
+      Object.keys(data).forEach(function (slug) {
+        var n = normaliseSlug(slug);
+        if (n === 'friction/index' || n.indexOf('friction/') === 0) {
+          keep[slug] = true;
+        }
+      });
+      Object.keys(keep).forEach(function (slug) {
+        var entry = data[slug];
+        var links = (entry && entry.links) || [];
+        links.forEach(function (link) {
+          if (link in data && !keep[link]) keep[link] = true;
+        });
+      });
+      Object.keys(data).forEach(function (slug) {
+        if (!keep[slug]) delete data[slug];
+      });
+    }).catch(function (e) {
+      console.error('[FrictionFilter] filter failed:', e);
+    });
+  }
+
+  attach();
+  document.addEventListener('nav', attach);
+})();
+`
+
 type PageKind = "home" | "folder" | "note"
 
 function classifyPage(slug: string): PageKind {
@@ -136,6 +213,16 @@ function templatesFor(kind: PageKind, slug: string): BlockSet {
         BlockC: BlockC_Footnotes,
       }
     case "folder":
+      if (slug === "cv/index") {
+        // cv is a single-page CV, not a listing of notes. The markdown
+        // body in cv/index.md IS the content — route to detail templates
+        // so the body lands in Block B as the page itself.
+        return {
+          BlockA: BlockA_NoteInfo,
+          BlockB: BlockB_Note,
+          BlockC: BlockC_Footnotes,
+        }
+      }
       if (slug === "tags/index") {
         // tag index: alphabetical a–z grid of every tag site-wide,
         // with an orange search field in Block C.
@@ -156,14 +243,14 @@ function templatesFor(kind: PageKind, slug: string): BlockSet {
         }
       }
       if (slug.startsWith("thoughts/")) {
-        // thoughts: search + tag list in C waiting for a custom B view.
-        // BlockB_Listing is the placeholder until that view is designed —
-        // it'll just show the notes as a list for now (filters won't act
-        // on listing rows; they target `.thought-node` elements from the
-        // constellation template).
+        // thoughts: reverse-chronological list with date, title, tags;
+        // each row divided by a thin blue line; hovering anywhere on a
+        // row highlights only the title. Search + tag-filter live in C
+        // (same `data-title` / `data-tags` contract on each <li> so the
+        // filter script doesn't change).
         return {
           BlockA: BlockA_FolderInfo,
-          BlockB: BlockB_Listing,
+          BlockB: BlockB_Thoughts,
           BlockC: BlockC_ThoughtsFilters,
         }
       }
@@ -173,6 +260,16 @@ function templatesFor(kind: PageKind, slug: string): BlockSet {
         BlockC: BlockC_Footnotes,
       }
     case "note":
+      if (slug.startsWith("kisk/")) {
+        // kisk subject details: move frontmatter properties out of Block A
+        // and into Block C so they pick up the orange marginalia treatment
+        // alongside the footnotes. Block A is just crumbs + title.
+        return {
+          BlockA: BlockA_NoteHeader,
+          BlockB: BlockB_Note,
+          BlockC: BlockC_PropertiesFootnotes,
+        }
+      }
       return {
         BlockA: BlockA_NoteInfo,
         BlockB: BlockB_Note,

@@ -56,86 +56,16 @@ const BlockB_Friction: BlockTemplate = (props) => {
 
   return (
     <div class="block-friction-graph">
-      {/* Filter must run before the graph plugin's afterDOMLoaded script
-          reads fetchData — placed before <Graph> so it parses first. */}
-      <script dangerouslySetInnerHTML={{ __html: FRICTION_DATA_FILTER }} />
       <Graph {...props} />
     </div>
   )
 }
 
-/**
- * Filters the content-index data the graph plugin reads, so the friction
- * graph only contains:
- *
- *   1. Every note in the `friction/` folder.
- *   2. Anything those friction notes link out to (one hop).
- *
- * Mechanics: Quartz declares `const fetchData = fetch(...).then(json)`
- * in a head script. That binding can't be re-assigned (const) and isn't
- * on `window` (top-level `const` doesn't attach to it). What we CAN do
- * is attach our own `.then` callback to the same Promise — when it
- * resolves, we mutate the resulting object in place. Both our callback
- * and the graph plugin's `await fetchData` receive the same object
- * reference, and Promise `.then` callbacks fire in FIFO order, so as
- * long as we attach before the graph's render code is called we mutate
- * first.
- *
- * Side effect to know about: the mutation persists for the page session.
- * If another page used the graph plugin (currently none do), it'd see
- * the filtered data. When friction stops being the only graph consumer
- * this script needs revisiting.
- */
-const FRICTION_DATA_FILTER = `
-(function () {
-  if (window.__frictionFilterInit) return;
-  window.__frictionFilterInit = true;
-
-  function isFrictionIndex() {
-    return (document.body.dataset.slug || '') === 'friction/index';
-  }
-
-  function normaliseSlug(s) {
-    return String(s || '').replace(/^\\/+/, '').replace(/\\/+$/, '');
-  }
-
-  function attach() {
-    if (!isFrictionIndex()) return;
-    // fetchData is a top-level \`const\` in another script tag — reachable
-    // by bare name as a global binding (not via window.*).
-    if (typeof fetchData === 'undefined') {
-      console.warn('[FrictionFilter] fetchData binding not visible');
-      return;
-    }
-    fetchData.then(function (data) {
-      if (!data || typeof data !== 'object') return;
-      // Re-running on SPA nav is a no-op: once filtered, the friction-only
-      // keys are all that's left, so the loop simply re-keeps them.
-      var keep = Object.create(null);
-      Object.keys(data).forEach(function (slug) {
-        var n = normaliseSlug(slug);
-        if (n === 'friction/index' || n.indexOf('friction/') === 0) {
-          keep[slug] = true;
-        }
-      });
-      Object.keys(keep).forEach(function (slug) {
-        var entry = data[slug];
-        var links = (entry && entry.links) || [];
-        links.forEach(function (link) {
-          if (link in data && !keep[link]) keep[link] = true;
-        });
-      });
-      Object.keys(data).forEach(function (slug) {
-        if (!keep[slug]) delete data[slug];
-      });
-    }).catch(function (e) {
-      console.error('[FrictionFilter] filter failed:', e);
-    });
-  }
-
-  attach();
-  document.addEventListener('nav', attach);
-})();
-`
+// Note: the data filter that scopes the graph to friction-only notes
+// lives in BlockFrame.tsx, not here. It needs to be present on every
+// page (so the listener registers on first page load regardless of
+// where the user lands), not just on friction itself — otherwise SPA
+// navigation to /friction/ would arrive after the listener could have
+// been wired up.
 
 export default BlockB_Friction

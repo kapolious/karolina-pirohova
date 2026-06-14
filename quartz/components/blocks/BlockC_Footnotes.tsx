@@ -63,7 +63,7 @@ function findFootnotesSection(root: Root): Element | null {
  * Re-runs on Quartz SPA `nav` events, viewport resize, and `load` (in case
  * images/fonts shift heights).
  */
-const FOOTNOTE_POSITIONER_SCRIPT = `
+export const FOOTNOTE_POSITIONER_SCRIPT = `
 (function () {
   if (window.__footnotePositionerInit) return;
   window.__footnotePositionerInit = true;

@@ -12,8 +12,3 @@ in case you don't see me standing in a ray of sunshine, please feel free to reac
 ![](/static/me.webp)
 
 (i am blue because what else is a person if not a hyperlink.)
-
-- [thoughts](thoughts/)
-- [portfolio](portfolio/)
-- [kisk](kisk/)
-- [friction](friction/)
