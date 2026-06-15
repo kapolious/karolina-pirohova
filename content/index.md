@@ -5,7 +5,7 @@ hi, my name is karolína pirohová[^1].
 
 [^1]:and i hereby declare this web to be in progress. a lot of fun stuff is coming. though if you have had the luck of finding it, take a look, if you wish.
 
-i am a twentysomething woman with a hyperfixation on [[fish]], thoughtfully designed spaces, and the color blue.
+i am a twentysomething woman with a hyperfixation on [[fish]], thoughtfully designed spaces, and the color [[blue]].
 
 in case you don't see me standing in a ray of sunshine, please feel free to reach me via [email](mailto:karolina.pirohova@gmail.com) or [instagram](https://www.instagram.com/kapolious/).
 

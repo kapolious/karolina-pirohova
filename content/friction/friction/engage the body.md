@@ -1,0 +1,3 @@
+When interacting with screens we lack resistance. Swiping screens makes our world more superficial. Human life gains depth when having thing-relations. Thing-relations tend to bring us together physically and create connections. Designing friction requires thinking about how to increase our resistance. How can we engage our hands and whole bodies? How can these bodily engagements bring us together?
+
+– Luna Maurer, Roel Wouters, Alexandra Barancová

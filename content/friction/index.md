@@ -1,0 +1,1 @@
+interested in the topic of [[friction]] and [[serendipity]] 
