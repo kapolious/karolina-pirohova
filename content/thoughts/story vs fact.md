@@ -93,7 +93,7 @@ We can fight it all we want, but our thinking stays literate.
 
 The storyteller in me finds the way we keep reaching for the word *orality* somewhat beautiful. Not because it fits, but because it sounds better than the truer, more literate alternatives. It seems as if we would rather tell the engaging story about the oral human being than look at the facts.
 ![[orality_1.png]]
-However, I cannot deny that I am part of a literate society. I have systematically gone over the list of characteristics of orality several times and also looked up the fact that a ladder serves as a fire escape.
+However, I cannot deny that I am part of a literate society. I have systematically gone over the list of characteristics of orality several times and also looked up the fact that the ladder serves as a fire escape.
 
 [^1]: THOMPSON, Derek, 2026. _The Orality Theory of Everything_. Online. Available at: The Atlantic, [https://www.theatlantic.com/ideas/2026/02/social-media-literacy-crisis/686076/](https://www.theatlantic.com/ideas/2026/02/social-media-literacy-crisis/686076/). [accessed 2026-06-16].
 
