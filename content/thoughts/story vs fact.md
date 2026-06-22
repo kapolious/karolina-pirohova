@@ -17,8 +17,9 @@ It is a skill. And it might not get better over time.
 
 ---
 
-Recently, a friend sent me an article by Derek Thompson titled *The Orality Theory of Everything*[^1], in which he and Joe Weisenthal trace the slow historical shift from oral culture, a world where the written word did not exist, to the age of literacy, made possible by the invention of writing. More importantly, they point to the rise of digital media as evidence of a partial return to orality, which made me wonder whether we are really becoming a more oral society or only learning to sound like one.
+Recently, a friend sent me an article by Derek Thompson titled *The Orality Theory of Everything*[^1], in which he and Joe Weisenthal trace the slow historical shift from oral culture, a world where the written word did not exist, to the age of literacy, made possible by the invention of writing. 
 ![[orality_2.png]]
+More importantly, they point to the rise of digital media as evidence of a partial return to orality, which made me wonder whether we are really becoming a more oral society or only learning to sound like one.
 
 ---
 
