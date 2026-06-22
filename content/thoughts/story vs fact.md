@@ -25,7 +25,7 @@ Undoubtedly, the best-known figure associated with the concept of orality is Wal
 
 Ong points out that for a fully literate person, it is often very difficult to imagine what it truly means to exist in a culture with no awareness of writing.
 
-> *Try to imagine a culture where no one has ever ‘looked up’ anything. In a primary oral culture, the expression ‘to look up something’ is an empty phrase: it would have no conceivable meaning. Without writing, words as such have no visual presence, even when the objects they represent are visual. They are sounds. You might ‘call’ them back  — ‘recall’ them. But there is nowhere to ‘look’ for them. They have no focus and no trace (a visual metaphor, showing dependency on writing), not even a trajectory. They are occurrences, events.
+> *Try to imagine a culture where no one has ever ‘looked up’ anything. In a primary oral culture, the expression ‘to look up something’ is an empty phrase: it would have no conceivable meaning. Without writing, words as such have no visual presence, even when the objects they represent are visual. They are sounds. You might ‘call’ them back  — ‘recall’ them. But there is nowhere to ‘look’ for them. They have no focus and no trace (a visual metaphor, showing dependency on writing), not even a trajectory. They are occurrences, events.*
 
 To build a mental model of how the inability to write changes the way one thinks and functions, it helps to look at the characteristics of orality that the author himself defines:
 
@@ -49,7 +49,7 @@ To build a mental model of how the inability to write changes the way one thinks
 
 Literacy can, based on these characteristics, be understood as the other side of the coin.
 
-> *Primary orality fosters personality structures that in certain ways are more communal and externalised, and less introspective than those common among literates. Oral communication unites people in groups. Writing and reading are solitary activities that throw the psyche back on itself. 
+> *Primary orality fosters personality structures that in certain ways are more communal and externalised, and less introspective than those common among literates. Oral communication unites people in groups. Writing and reading are solitary activities that throw the psyche back on itself.* 
 
 Worth noting, there are two points that can be considered pivotal in shaping the interaction between orality and literacy: the concept of rhetoric, which draws on the agonistic dynamics of oral expression while adding a scholarly foundation developed through writing; and Latin, which played a significant role in the development of Western intellectual culture.
 
