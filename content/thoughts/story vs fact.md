@@ -18,7 +18,7 @@ It is a skill. And it might not get better over time.
 ---
 
 Recently, a friend sent me an article by Derek Thompson titled *The Orality Theory of Everything*[^1], in which he and Joe Weisenthal trace the slow historical shift from oral culture, a world where the written word did not exist, to the age of literacy, made possible by the invention of writing. More importantly, they point to the rise of digital media as evidence of a partial return to orality, which made me wonder whether we are really becoming a more oral society or only learning to sound like one.
-![[orality_2 (2).png]]
+![[orality_2.png]]
 
 ---
 
@@ -61,7 +61,7 @@ And yet, if literacy restructured consciousness so profoundly, what exactly are 
 ---
 
 Ong himself anticipated this question. He observed that electronic media such as telephone, radio, or television were giving rise to what he called *secondary orality*: a new kind of oral culture that, unlike the primary one, is entirely dependent on writing and print for its existence.
-![[orality_4 (1).png]]
+![[orality_4.png]]
 Similar to primary orality, secondary orality fosters a sense of togetherness and community among people. On the other hand, it is hard to ignore that, despite this, it feels deeply rehearsed and planned; the way content is scripted in advance creates the impression that spontaneity is performed rather than genuine.
 
 > *Secondary orality promotes spontaneity because, through analytic reflection, we have decided that spontaneity is a good thing.* 
@@ -91,10 +91,8 @@ After all, emojis don’t have wrinkles.
 We can fight it all we want, but our thinking stays literate.
 
 The storyteller in me finds the way we keep reaching for the word *orality* somewhat beautiful. Not because it fits, but because it sounds better than the truer, more literate alternatives. It seems as if we would rather tell the engaging story about the oral human being than look at the facts.
-![[orality_1 1.png]]
+![[orality_1.png]]
 However, I cannot deny that I am part of a literate society. I have systematically gone over the list of characteristics of orality several times and also looked up the fact that a ladder serves as a fire escape.
-
----
 
 [^1]: THOMPSON, Derek, 2026. _The Orality Theory of Everything_. Online. Available at: The Atlantic, [https://www.theatlantic.com/ideas/2026/02/social-media-literacy-crisis/686076/](https://www.theatlantic.com/ideas/2026/02/social-media-literacy-crisis/686076/). [accessed 2026-06-16].
 
