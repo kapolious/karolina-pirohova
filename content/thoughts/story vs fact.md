@@ -1,8 +1,8 @@
 ---
 tags:
   - essay
-  - orality
-  - literacy
+  - story
+  - fact
 date: 2026-06-22T00:00:00
 ---
 I come from a family of storytellers, and my father is the greatest of them all. The moment he comes across somewhat new or interesting information, he doesn't try to verify the facts right away. Instead he constructs the most believable and engaging story possible and then tries to convince everyone around him of his version of reality. 

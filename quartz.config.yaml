@@ -86,7 +86,12 @@ plugins:
   - source: github:quartz-community/crawl-links
     enabled: true
     options:
-      markdownLinkResolution: shortest
+      # "absolute" so the emitted href/src is always rooted at "/" — survives
+      # Cloudflare Pages adding trailing slashes to clean URLs. With "shortest"
+      # the plugin emitted relative paths like `../attachments/...` which only
+      # work when the current URL has no trailing slash (true on the local
+      # dev server, false in production → images 404'd).
+      markdownLinkResolution: absolute
     order: 60
   - source: github:quartz-community/description
     enabled: true
