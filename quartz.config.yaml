@@ -86,12 +86,14 @@ plugins:
   - source: github:quartz-community/crawl-links
     enabled: true
     options:
-      # "absolute" so the emitted href/src is always rooted at "/" — survives
-      # Cloudflare Pages adding trailing slashes to clean URLs. With "shortest"
-      # the plugin emitted relative paths like `../attachments/...` which only
-      # work when the current URL has no trailing slash (true on the local
-      # dev server, false in production → images 404'd).
-      markdownLinkResolution: absolute
+      # "shortest" so bare wikilinks like [[fish]] get resolved against the
+      # full slug list at build time (→ /thoughts/fish). The "absolute"
+      # strategy skips that lookup and emits the target verbatim, which
+      # breaks any wikilink or image embed that doesn't include the folder
+      # path (→ /fish, /orality_1.png — 404). Cloudflare Pages strips
+      # trailing slashes from clean URLs, so the relative paths this
+      # strategy emits resolve to the correct root-based path.
+      markdownLinkResolution: shortest
     order: 60
   - source: github:quartz-community/description
     enabled: true
