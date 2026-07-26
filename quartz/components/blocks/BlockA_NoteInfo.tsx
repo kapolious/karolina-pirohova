@@ -48,6 +48,10 @@ const NoteHeader: BlockTemplate = (props) => {
     : lastSegment(slug)
   const title = (fileData.frontmatter?.title as string | undefined) ?? fallbackName
   const segments = buildBreadcrumbs(slug, title)
+  // If the note declares a `date` frontmatter, render it under the title
+  // as small blue marginalia ("12 june 2026"). Kicks in automatically for
+  // thoughts notes and any other note that opts in.
+  const dateLabel = formatDetailDate(fileData.frontmatter?.date)
 
   return (
     <>
@@ -64,8 +68,23 @@ const NoteHeader: BlockTemplate = (props) => {
         ))}
       </nav>
       <h1 class="block-title">{title}</h1>
+      {dateLabel && <p class="block-note-date">{dateLabel}</p>}
     </>
   )
+}
+
+/** "12 june 2026" — day with leading zero, month name lowercased. */
+function formatDetailDate(raw: unknown): string {
+  if (!raw) return ""
+  const d = raw instanceof Date ? raw : new Date(String(raw))
+  if (Number.isNaN(d.getTime())) return ""
+  return d
+    .toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    })
+    .toLowerCase()
 }
 
 /**

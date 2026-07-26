@@ -336,6 +336,14 @@ body[data-slug="friction/index"] {
   margin: 0 0 1rem 0;
 }
 
+// Small blue date under the title on note detail pages. Rendered by
+// NoteHeader whenever the note has a `date` frontmatter (thoughts opt in
+// by having the property; other notes stay silent).
+.block-note-date {
+  color: var(--secondary);
+  margin: -0.5rem 0 0 0;   // sits close under the title
+}
+
 // Frontmatter properties under the title on detail pages. Each row is
 // independent — key, 10px gap, value — no column alignment between rows
 // (so the value position floats with the length of each key, not pulled
@@ -452,14 +460,38 @@ body[data-slug="cv/index"] {
   height: 0;
 }
 
-// `thoughts/` variant of the listing — date | title | tags per row, a
-// thin blue divider under every row, and a layered click model:
+// `thoughts/` variant of the listing — title | tags per row, grouped under
+// a 24px month heading. A thin blue divider under every row, and a layered
+// click model:
 //   • clicking anywhere on the row (except the tag) → opens the note
 //   • clicking the [tag] → opens the tag page
 // Achieved with the "stretched link" pattern: the title <a> grows a
-// ::before that fills the entire li so clicks on the date or whitespace
-// route to the same anchor. The tag <a> sits above the pseudo with a
-// higher z-index so it stays independently clickable.
+// ::before that fills the entire li so clicks on whitespace route to the
+// same anchor. The tag <a> sits above the pseudo with a higher z-index so
+// it stays independently clickable.
+.block-listing-months {
+  display: flex;
+  flex-direction: column;
+}
+
+.block-listing-month {
+  // Space between consecutive month sections (never before the first).
+  & + & { margin-top: 1.5rem; }
+
+  // Auto-hide a month whose rows are all filtered out by the tag/search
+  // filter — otherwise the heading would sit above empty space.
+  &:not(:has(.block-listing > li:not(.thought-hidden))) {
+    display: none;
+  }
+}
+
+.block-listing-month-heading {
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 0 0 0.5rem 0;
+}
+
 .block-listing--thoughts {
   & > li {
     position: relative;          // positioning context for the stretched ::before
@@ -469,11 +501,6 @@ body[data-slug="cv/index"] {
     gap: 1.5rem;
 
     &:last-child { border-bottom: none; }
-  }
-
-  .block-listing-date {
-    flex: 0 0 auto;
-    color: var(--secondary);
   }
 
   // Stretch the title link's click area to cover the whole li.
@@ -505,7 +532,6 @@ body[data-slug="cv/index"] {
     background-color: var(--secondary);
     color: var(--light);
 
-    .block-listing-date,
     .block-listing-row-link,
     .block-listing-tag {
       color: var(--light);
@@ -662,12 +688,25 @@ a[data-footnote-ref] {
   }
 }
 
-// The tag-page plugin auto-titles this page "Tag Index" (TitleCase). The
-// site otherwise stays in lowercase, so flatten both the heading and the
-// current-page segment of the breadcrumbs to match.
-body[data-slug="tags/index"] .block-title,
-body[data-slug="tags/index"] .breadcrumb-current {
-  text-transform: lowercase;
+// Individual tag page (`/tags/<tag>`): inline list of note titles that
+// carry the tag, laid out like the tag chips on /tags/ — wrapping row,
+// column-gap generous enough that titles read as separate items.
+.tag-note-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 20px;
+  row-gap: 10px;
+
+  & > li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    &::marker { content: ""; }
+  }
 }
 
 // === Thoughts folder: search + tag filter + constellation ==================

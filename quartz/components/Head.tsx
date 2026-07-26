@@ -13,8 +13,14 @@ export default (() => {
     ctx,
   }: QuartzComponentProps) => {
     const titleSuffix = cfg.pageTitleSuffix ?? ""
-    const title =
-      (fileData.frontmatter?.title ?? i18n(cfg.locale).propertyDefaults.title) + titleSuffix
+    // The tag-page plugin auto-titles /tags/ as "Tag Index" — override the
+    // browser-tab title to match the visible in-page title ("tags") set in
+    // BlockA_FolderInfo.
+    const rawTitle =
+      fileData.slug === "tags/index"
+        ? "tags"
+        : (fileData.frontmatter?.title ?? i18n(cfg.locale).propertyDefaults.title)
+    const title = rawTitle + titleSuffix
     const description =
       fileData.frontmatter?.socialDescription ??
       fileData.frontmatter?.description ??

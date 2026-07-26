@@ -19,8 +19,12 @@ import { BlockTemplate } from "./types"
 const BlockA_FolderInfo: BlockTemplate = (props) => {
   const { fileData, tree } = props
   const slug = (fileData as { slug?: string }).slug ?? ""
+  // The tag-page plugin auto-titles the /tags/ index page "Tag Index" — override
+  // to just "tags" so it matches the site's lowercase, folder-name convention.
   const title =
-    (fileData.frontmatter?.title as string | undefined) ?? folderNameFromSlug(slug)
+    slug === "tags/index"
+      ? "tags"
+      : (fileData.frontmatter?.title as string | undefined) ?? folderNameFromSlug(slug)
 
   const hastRoot = tree as Root
   const hasContent = hastRoot?.children && hastRoot.children.length > 0
