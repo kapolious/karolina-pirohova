@@ -151,6 +151,7 @@ function lastSegment(slug: string): string {
  */
 const RESERVED_KEYS = new Set([
   "title",
+  "id",
   "tags",
   "aliases",
   "description",

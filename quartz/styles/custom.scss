@@ -301,6 +301,107 @@ body[data-slug="friction/index"] {
   }
 }
 
+// Portfolio index: gallery grid. Block A stays cols 1-2 (folder info),
+// Block B grows to cols 3-9 and hosts a 3-across grid of square thumbnails,
+// Block C hidden.
+// Block C hidden. Items snap to the frame's own columns via subgrid: each
+// piece spans 2 columns (+ the gap between them), so a row reads
+// cols 3-4, 5-6, 7-8, leaving col 9 empty.
+body[data-slug="portfolio/index"] {
+  .block-b {
+    grid-column: 3 / span 7;
+    display: grid;
+    grid-template-columns: subgrid;
+    align-content: start;
+  }
+  .block-c { display: none; }
+}
+
+.portfolio-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  // Inherit the frame's column tracks (chained through .block-b's subgrid)
+  // so items align to real layout columns, not an even 3-way split.
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  row-gap: 40px;
+
+  @media all and ($mobile) {
+    display: block;
+  }
+
+  > .portfolio-item {
+    grid-column: span 2; // two columns + the gap between them
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    &::marker { content: ""; }
+
+    @media all and ($mobile) {
+      margin: 0 0 24px 0;
+    }
+
+    a { display: block; }
+
+    img {
+      display: block;
+      width: 100%;
+      margin: 0;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+      transition: opacity 0.2s ease;
+    }
+
+    a:hover img,
+    a:focus-visible img {
+      opacity: 0.5;
+    }
+  }
+
+  .portfolio-item-missing {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1 / 1;
+    font-size: 0.85rem;
+    color: var(--orange);
+    text-align: center;
+  }
+}
+
+// Portfolio piece detail: info column cols 1-2 (Block A), a uniform 4-col
+// square image pinned top-left (Block B, cols 3-6), and the properties as
+// orange marginalia (Block C, cols 7-8). Col 9 empty.
+body[data-slug^="portfolio/"]:not([data-slug="portfolio/index"]) {
+  .block-b {
+    grid-column: 3 / span 4;
+    align-self: start;
+  }
+  .block-c {
+    grid-column: 7 / span 2;
+    align-self: start;
+  }
+}
+
+.portfolio-detail-image {
+  img {
+    display: block;
+    width: 100%;
+    margin: 0;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    object-position: left top;
+  }
+  p { margin: 0; }
+}
+
+.portfolio-brief {
+  margin-top: 0.5rem;
+}
+
 // (Vertical dividers between blocks were removed — relying on column gaps
 // and whitespace to separate them instead. If you want them back, restore
 // the `#quartz-body::before/::after` rules from git history.)
@@ -312,7 +413,7 @@ body[data-slug="friction/index"] {
 
 // Block A breadcrumbs (folder + note pages).
 .block-breadcrumbs {
-  font-size: 0.95rem;
+  font-size: 14px;
   margin: 0 0 1rem 0;
 
   .breadcrumb-sep {

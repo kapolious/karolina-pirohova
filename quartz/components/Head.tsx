@@ -5,6 +5,7 @@ import { googleFontHref, googleFontSubsetHref } from "../util/theme"
 import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "./types"
 import { unescapeHTML } from "../util/escape"
 import { CustomOgImagesEmitterName } from "../../.quartz/plugins"
+import { pieceTitle } from "./blocks/portfolioTree"
 export default (() => {
   const Head: QuartzComponent = ({
     cfg,
@@ -16,10 +17,19 @@ export default (() => {
     // The tag-page plugin auto-titles /tags/ as "Tag Index" — override the
     // browser-tab title to match the visible in-page title ("tags") set in
     // BlockA_FolderInfo.
+    // Portfolio piece pages carry the `id` in their visible title ("001 …");
+    // mirror that in the browser-tab title so it matches the H1/breadcrumb.
+    const isPortfolioPiece =
+      !!fileData.slug?.startsWith("portfolio/") && fileData.slug !== "portfolio/index"
     const rawTitle =
       fileData.slug === "tags/index"
         ? "tags"
-        : (fileData.frontmatter?.title ?? i18n(cfg.locale).propertyDefaults.title)
+        : isPortfolioPiece
+          ? pieceTitle(
+              fileData.frontmatter as { title?: string; id?: string | number } | undefined,
+              fileData.slug!,
+            )
+          : (fileData.frontmatter?.title ?? i18n(cfg.locale).propertyDefaults.title)
     const title = rawTitle + titleSuffix
     const description =
       fileData.frontmatter?.socialDescription ??

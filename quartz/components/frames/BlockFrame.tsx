@@ -3,6 +3,10 @@ import BlockA_FolderInfo from "../blocks/BlockA_FolderInfo"
 import BlockA_NoteInfo, { BlockA_NoteHeader } from "../blocks/BlockA_NoteInfo"
 import BlockB_Listing from "../blocks/BlockB_Listing"
 import BlockB_Note from "../blocks/BlockB_Note"
+import BlockB_PortfolioGrid from "../blocks/BlockB_PortfolioGrid"
+import BlockA_PortfolioDetail from "../blocks/BlockA_PortfolioDetail"
+import BlockB_PortfolioImage from "../blocks/BlockB_PortfolioImage"
+import BlockC_PortfolioProps from "../blocks/BlockC_PortfolioProps"
 import BlockB_Home from "../blocks/BlockB_Home"
 import BlockB_TagIndex from "../blocks/BlockB_TagIndex"
 import BlockB_Friction from "../blocks/BlockB_Friction"
@@ -244,6 +248,15 @@ function templatesFor(kind: PageKind, slug: string): BlockSet {
           BlockC: BlockC_Footnotes,
         }
       }
+      if (slug === "portfolio/index") {
+        // portfolio index: gallery grid of pieces (Block A folder info stays,
+        // Block B grows to a 3-across grid, Block C hidden via slug CSS).
+        return {
+          BlockA: BlockA_FolderInfo,
+          BlockB: BlockB_PortfolioGrid,
+          BlockC: null,
+        }
+      }
       if (slug.startsWith("thoughts/")) {
         // thoughts: reverse-chronological list with date, title, tags;
         // each row divided by a thin blue line; hovering anywhere on a
@@ -270,6 +283,17 @@ function templatesFor(kind: PageKind, slug: string): BlockSet {
           BlockA: BlockA_NoteHeader,
           BlockB: BlockB_Note,
           BlockC: BlockC_PropertiesFootnotes,
+        }
+      }
+      if (slug.startsWith("portfolio/")) {
+        // portfolio piece detail: info column on the left (Block A holds the
+        // brief text + properties), image panel on the right (Block B, split
+        // out of the body and widened to 4 cols via slug CSS). Properties
+        // (dimensions, technique, date) sit in Block C on the right.
+        return {
+          BlockA: BlockA_PortfolioDetail,
+          BlockB: BlockB_PortfolioImage,
+          BlockC: BlockC_PortfolioProps,
         }
       }
       if (slug.startsWith("tags/")) {
